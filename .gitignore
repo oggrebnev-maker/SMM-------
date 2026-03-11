@@ -1,0 +1,15 @@
+# Секреты (не коммитить)
+api/config/config.php
+.env
+.env.*
+
+# Загрузки и кэш
+uploads/*
+!uploads/.gitkeep
+api/cron/logs/*.log
+
+# Системное
+.DS_Store
+*.log
+.idea/
+.vscode/
