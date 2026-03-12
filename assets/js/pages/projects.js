@@ -24,14 +24,6 @@ const PageProjects = (() => {
           <div class="page-title">Проекты</div>
           <div class="page-subtitle">Ваши рабочие пространства</div>
         </div>
-        <button class="btn btn-blue btn-sm sa-mob-only-btn" id="btn-new-project" style="gap:6px;">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Добавить
-        </button>
-        <button class="btn btn-blue proj-desk-add-btn" id="btn-new-project-desk" style="gap:6px;">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Новый проект
-        </button>
       </div>
 
       <div id="projects-list"></div>
@@ -206,6 +198,8 @@ const PageProjects = (() => {
     renderList();
     initModal();
     initColorPicker();
+    const path = (location.hash || '#').replace('#', '').split('?')[0];
+    if (path === '/projects/create') openModal(null);
   }
 
   function renderList() {
@@ -272,13 +266,15 @@ const PageProjects = (() => {
         <!-- Действия -->
         <div class="proj-card-actions" style="display:flex;gap:4px;flex-shrink:0;">
           <button class="btn-icon proj-settings-btn" data-id="${p.id}" title="Редактировать" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
-          <button class="btn-icon proj-delete-btn" data-id="${p.id}" title="Удалить" style="width:34px;height:34px;border-radius:8px;background:rgba(252,63,29,0.07);border:1.5px solid rgba(252,63,29,0.2);color:var(--red);"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button type="button" class="btn-icon proj-team-btn" data-id="${p.id}" title="Команда" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);color:inherit;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg></button>
+          <button class="btn-icon proj-delete-btn" data-id="${p.id}" title="Удалить" style="width:34px;height:34px;border-radius:8px;background:rgba(252,63,29,0.07);border:1.5px solid rgba(252,63,29,0.2);color:var(--red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
 
         <!-- Мобильные действия снизу -->
         <div class="sa-card-actions-bottom" style="width:100%;display:flex;gap:4px;padding-top:8px;border-top:1px solid var(--border);">
           <button class="btn-icon proj-settings-btn" data-id="${p.id}" title="Редактировать" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
-          <button class="btn-icon proj-delete-btn" data-id="${p.id}" title="Удалить" style="width:34px;height:34px;border-radius:8px;background:rgba(252,63,29,0.07);border:1.5px solid rgba(252,63,29,0.2);color:var(--red);"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button type="button" class="btn-icon proj-team-btn" data-id="${p.id}" title="Команда" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);color:inherit;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg></button>
+          <button class="btn-icon proj-delete-btn" data-id="${p.id}" title="Удалить" style="width:34px;height:34px;border-radius:8px;background:rgba(252,63,29,0.07);border:1.5px solid rgba(252,63,29,0.2);color:var(--red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
 
       </div>`;
@@ -733,10 +729,15 @@ const PageProjects = (() => {
 
   function closeModal() {
     document.getElementById('project-modal').classList.add('hidden');
+    const path = (location.hash || '#').replace('#', '').split('?')[0];
+    if (path === '/projects/create' && typeof App !== 'undefined' && App.navigate) {
+      App.navigate('/projects');
+    }
   }
 
   function initModal() {
-    document.getElementById('btn-new-project').addEventListener('click', () => openModal(null));
+    const btnNew = document.getElementById('btn-new-project');
+    if (btnNew) btnNew.addEventListener('click', () => openModal(null));
     const deskBtn = document.getElementById('btn-new-project-desk');
     if (deskBtn) deskBtn.addEventListener('click', () => openModal(null));
     document.getElementById('proj-panel-close').addEventListener('click', closeSettingsPanel);

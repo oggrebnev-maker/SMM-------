@@ -11,6 +11,7 @@ require_once __DIR__ . "/controllers/SocialAccountController.php";
 require_once __DIR__ . "/controllers/ProjectController.php";
 require_once __DIR__ . "/controllers/ProjectChannelController.php";
 require_once __DIR__ . "/controllers/PublishScheduleController.php";
+require_once __DIR__ . "/controllers/PostController.php";
 
 $method = $_SERVER["REQUEST_METHOD"];
 $uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
@@ -89,6 +90,7 @@ try {
         $method === "GET"    && preg_match('#^/projects/(\d+)/channels$#', $uri, $m)          => (new ProjectChannelController())->getAll((int)$m[1]),
         $method === "POST"   && preg_match('#^/projects/(\d+)/channels$#', $uri, $m)          => (new ProjectChannelController())->create((int)$m[1]),
         $method === "DELETE" && preg_match('#^/projects/(\d+)/channels/(\d+)$#', $uri, $m)   => (new ProjectChannelController())->delete((int)$m[1], (int)$m[2]),
+        $method === "POST"   && preg_match('#^/projects/(\d+)/posts$#', $uri, $m)             => (new PostController())->create((int)$m[1]),
 
         // Publish schedules
         $method === "GET"    && preg_match('#^/projects/(\d+)/publish-schedules$#', $uri, $m)        => (new PublishScheduleController())->getAll((int)$m[1]),

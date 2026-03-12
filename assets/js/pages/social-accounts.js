@@ -105,7 +105,7 @@ const PageSocialAccounts = (() => {
 
             <div id="sa-platform-desc" style="font-size:13px;color:var(--text2);line-height:1.6;"></div>
 
-            <button type="button" id="sa-instruction-btn" style="display:inline-flex;align-items:center;gap:8px;align-self:flex-start;background:var(--bg);border:none;padding:8px 14px;border-radius:var(--btn-radius);cursor:pointer;font-family:inherit;color:var(--accent);font-size:13px;font-weight:600;transition:opacity .15s;" onmouseenter="this.style.opacity='.7'" onmouseleave="this.style.opacity='1'">
+            <button type="button" id="sa-instruction-btn" class="btn-instr" style="align-self:flex-start;">
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5M10 7v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               Инструкция по подключению
             </button>

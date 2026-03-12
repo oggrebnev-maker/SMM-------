@@ -4,19 +4,51 @@
 
 const App = (() => {
 
+  const STUB_TITLES = {
+    '/projects/create': 'Создать проект', '/projects/settings': 'Настройки проекта', '/projects/access': 'Доступы',
+    '/team': 'Команда', '/team/roles': 'Роли', '/team/invitations': 'Приглашения', '/team/access': 'Права доступа',
+    '/content-plan': 'Контент-план', '/posts': 'Все посты', '/drafts': 'Черновики',
+    '/content/variants': 'Варианты постов', '/content/media': 'Медиавложения',
+    '/publications/queue': 'Очередь публикаций', '/publications/scheduled': 'Запланированные', '/publications/published': 'Опубликованные',
+    '/publications/errors': 'Ошибки публикации', '/publications/log': 'Журнал публикаций',
+    '/integrations/channels': 'Каналы и сообщества',
+    '/ai/audience': 'Анализ ЦА', '/ai/content-plan': 'Генерация контент-плана', '/ai/posts': 'Генерация постов',
+    '/ai/adapt': 'Адаптация под площадки', '/ai/tools': 'AI-инструменты',
+    '/templates/images': 'Шаблоны изображений', '/templates/media': 'Медиафайлы', '/templates/editor': 'Редактор визуалов', '/templates/brand': 'Бренд-заготовки',
+    '/analytics': 'Общая аналитика', '/analytics/projects': 'По проектам', '/analytics/platforms': 'По площадкам', '/analytics/publications': 'По публикациям', '/analytics/reports': 'Отчёты',
+    '/billing': 'Тариф', '/billing/subscription': 'Подписка', '/billing/limits': 'Лимиты', '/billing/history': 'История оплат',
+    '/settings/account': 'Настройки аккаунта', '/settings/notifications': 'Уведомления', '/settings/timezone': 'Часовой пояс',
+    '/audience': 'Аудитория', '/stats': 'Статистика', '/calendar': 'Календарь',
+  };
+  function stubRoute(path) {
+    const title = STUB_TITLES[path] || path.split('/').filter(Boolean).pop() || 'Раздел';
+    return () => renderStub(title, 'В разработке');
+  }
+
   const ROUTES = {
     '/dashboard':       () => PageDashboard.render(),
     '/projects':        () => PageProjects.render(),
-    '/content-plan':    () => renderStub('Контент-план', 'Этап 2'),
-    '/posts':           () => renderStub('Посты', 'Этап 3'),
-    '/drafts':          () => renderStub('Черновики', 'Этап 3'),
-    '/calendar':        () => renderStub('Календарь', 'Этап 4'),
-    '/audience':        () => renderStub('Аудитория', 'Этап 2'),
-    '/stats':           () => renderStub('Статистика', 'Этап 5'),
+    '/content-plan':    stubRoute('/content-plan'),
+    '/posts':           async () => { await PagePosts.render(); },
+    '/drafts':          stubRoute('/drafts'),
+    '/calendar':        stubRoute('/calendar'),
+    '/audience':        stubRoute('/audience'),
+    '/stats':           stubRoute('/stats'),
     '/social-accounts': () => PageSocialAccounts.render(),
     '/publish-schedule': async (container) => { await PagePublishSchedule.init(container); },
     '/profile':         () => PageProfile.render(),
     '/system-settings': () => PageSystemSettings.render(),
+    '/projects/create': async () => { await PageProjects.render(); }, '/projects/settings': stubRoute('/projects/settings'), '/projects/access': stubRoute('/projects/access'),
+    '/team': stubRoute('/team'), '/team/roles': stubRoute('/team/roles'), '/team/invitations': stubRoute('/team/invitations'), '/team/access': stubRoute('/team/access'),
+    '/content/variants': stubRoute('/content/variants'), '/content/media': stubRoute('/content/media'),
+    '/publications/queue': stubRoute('/publications/queue'), '/publications/scheduled': stubRoute('/publications/scheduled'), '/publications/published': stubRoute('/publications/published'),
+    '/publications/errors': stubRoute('/publications/errors'), '/publications/log': stubRoute('/publications/log'),
+    '/integrations/channels': stubRoute('/integrations/channels'),
+    '/ai/audience': stubRoute('/ai/audience'), '/ai/content-plan': stubRoute('/ai/content-plan'), '/ai/posts': stubRoute('/ai/posts'), '/ai/adapt': stubRoute('/ai/adapt'), '/ai/tools': stubRoute('/ai/tools'),
+    '/templates/images': stubRoute('/templates/images'), '/templates/media': stubRoute('/templates/media'), '/templates/editor': stubRoute('/templates/editor'), '/templates/brand': stubRoute('/templates/brand'),
+    '/analytics': stubRoute('/analytics'), '/analytics/projects': stubRoute('/analytics/projects'), '/analytics/platforms': stubRoute('/analytics/platforms'), '/analytics/publications': stubRoute('/analytics/publications'), '/analytics/reports': stubRoute('/analytics/reports'),
+    '/billing': stubRoute('/billing'), '/billing/subscription': stubRoute('/billing/subscription'), '/billing/limits': stubRoute('/billing/limits'), '/billing/history': stubRoute('/billing/history'),
+    '/settings/account': stubRoute('/settings/account'), '/settings/notifications': stubRoute('/settings/notifications'), '/settings/timezone': stubRoute('/settings/timezone'),
   };
 
   const DEFAULT_ROUTE = '/dashboard';
@@ -129,9 +161,46 @@ const App = (() => {
     }
   }
 
-  function setActiveNav(page) {
+  function setActiveNav(path) {
+    const hash = '#' + path;
     document.querySelectorAll('.nav-item').forEach(el => {
-      el.classList.toggle('active', el.dataset.page === page);
+      el.classList.toggle('active', el.getAttribute('href') === hash);
+    });
+    document.querySelectorAll('.nav-accordion').forEach(acc => {
+      const hasActive = acc.querySelector('.nav-item.active');
+      acc.classList.toggle('open', !!hasActive);
+      const header = acc.querySelector('.nav-accordion-header');
+      if (header) header.setAttribute('aria-expanded', !!hasActive);
+    });
+    // При загрузке на дашборде по умолчанию раскрыт раздел «Контент»
+    if (path === '/dashboard') {
+      const contentAcc = document.querySelector('.nav-accordion[data-section="content"]');
+      if (contentAcc) {
+        contentAcc.classList.add('open');
+        const h = contentAcc.querySelector('.nav-accordion-header');
+        if (h) h.setAttribute('aria-expanded', 'true');
+      }
+    }
+  }
+
+  function initAccordion() {
+    document.querySelectorAll('.nav-accordion-header').forEach(header => {
+      header.addEventListener('click', (e) => {
+        if (e.target.closest('a')) return;
+        const acc = header.closest('.nav-accordion');
+        if (!acc) return;
+        const isOpening = !acc.classList.contains('open');
+        document.querySelectorAll('.nav-accordion').forEach(other => {
+          other.classList.remove('open');
+          const h = other.querySelector('.nav-accordion-header');
+          if (h) h.setAttribute('aria-expanded', 'false');
+        });
+        if (isOpening) {
+          acc.classList.add('open');
+          const h = acc.querySelector('.nav-accordion-header');
+          if (h) h.setAttribute('aria-expanded', 'true');
+        }
+      });
     });
   }
 
@@ -154,14 +223,15 @@ const App = (() => {
     location.hash = '#' + path;
   }
 
-  function handleRoute() {
+  async function handleRoute() {
     const path = getRoute();
     const handler = ROUTES[path];
-    const page = path.replace('/', '');
-    setActiveNav(page);
+    setActiveNav(path);
     if (handler) {
       const container = document.getElementById('page-container');
-      handler(container);
+      container.classList.toggle('posts-layout', path === '/posts');
+      const result = handler(container);
+      if (result && typeof result.then === 'function') await result;
     } else {
       navigate(DEFAULT_ROUTE);
     }
@@ -293,7 +363,7 @@ const App = (() => {
         else State.setProject(null);
       } catch { State.setProject(null); }
     }
-    handleRoute();
+    await handleRoute();
   }
 
   // ─── OAuth: вход через соцсеть (токен в URL после редиректа) ───────
@@ -364,7 +434,7 @@ const App = (() => {
         return;
       }
 
-      if (Auth.isLoggedIn()) handleRoute();
+      if (Auth.isLoggedIn()) await handleRoute();
     });
 
     $('project-switcher').addEventListener('click', () => navigate('/projects'));
@@ -382,6 +452,7 @@ const App = (() => {
     initRegisterForm();
     initVerifyScreen();
     initVKLoginBtn();
+    initAccordion();
 
     const route  = getRoute();
     const params = getQueryParams();
