@@ -26,7 +26,7 @@ const App = (() => {
   }
 
   const ROUTES = {
-    '/dashboard':       () => PageDashboard.render(),
+    '/dashboard':       async () => { await PageDashboard.render(); },
     '/projects':        () => PageProjects.render(),
     '/content-plan':    stubRoute('/content-plan'),
     '/posts':           async () => { await PagePosts.render(); },
@@ -152,13 +152,16 @@ const App = (() => {
   }
 
   function updateSidebarProject(project) {
-    if (project) {
-      $('sidebar-project-name').textContent = project.name;
-      $('sidebar-project-dot').style.background = project.color || '#6366f1';
-    } else {
-      $('sidebar-project-name').textContent = 'Не выбран';
-      $('sidebar-project-dot').style.background = '#374151';
-    }
+    const name = project ? project.name : 'Не выбран';
+    const dotColor = project ? (project.color || '#6366f1') : '#374151';
+    const nameEl = $('sidebar-project-name');
+    const dotEl = $('sidebar-project-dot');
+    if (nameEl) nameEl.textContent = name;
+    if (dotEl) dotEl.style.background = dotColor;
+    const mobName = document.getElementById('mob-project-name');
+    const mobDot = document.getElementById('mob-project-dot');
+    if (mobName) mobName.textContent = name;
+    if (mobDot) mobDot.style.background = dotColor;
   }
 
   function setActiveNav(path) {
@@ -227,9 +230,11 @@ const App = (() => {
     const path = getRoute();
     const handler = ROUTES[path];
     setActiveNav(path);
+    const topbarLeft = document.getElementById('app-topbar-left');
+    if (topbarLeft && path !== '/dashboard' && path !== '/posts') topbarLeft.innerHTML = '';
     if (handler) {
       const container = document.getElementById('page-container');
-      container.classList.toggle('posts-layout', path === '/posts');
+      container.classList.toggle('posts-layout', path === '/posts' || path === '/dashboard');
       const result = handler(container);
       if (result && typeof result.then === 'function') await result;
     } else {
@@ -444,6 +449,10 @@ const App = (() => {
     });
 
     $('project-switcher').addEventListener('click', () => navigate('/projects'));
+    document.getElementById('mob-project-switcher')?.addEventListener('click', () => {
+      navigate('/projects');
+      document.getElementById('mobile-drawer')?.classList.remove('open');
+    });
 
     $('show-register').addEventListener('click', (e) => {
       e.preventDefault();

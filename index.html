@@ -121,6 +121,28 @@
 
   <div id="app-shell" class="hidden">
 
+    <!-- Топбар на всю ширину: левая полоса = сайдбар по цвету и ширине -->
+    <header class="app-topbar" id="app-topbar">
+      <div class="app-topbar-left-strip">
+        <a href="#/dashboard" class="app-topbar-logo-link" title="На дашборд">
+          <img src="/images/logo-rnk.png" alt="РНК" class="app-topbar-logo-img">
+        </a>
+      </div>
+      <div class="app-topbar-right-part">
+        <div class="app-topbar-inner">
+          <div class="app-topbar-left" id="app-topbar-left"></div>
+          <button type="button" class="topbar-profile-btn" id="profile-panel-btn" title="Профиль и меню">
+            <div class="topbar-profile-avatar" id="user-avatar">?</div>
+            <div class="topbar-profile-info">
+              <span class="topbar-profile-name" id="user-name">—</span>
+              <span class="topbar-profile-role" id="user-role">—</span>
+            </div>
+            <svg class="topbar-profile-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
     <!-- Мобильный топбар -->
     <div id="mobile-topbar">
       <div class="mob-logo">
@@ -143,6 +165,14 @@
               <div class="mob-drawer-name" id="mob-uname">—</div>
               <div class="mob-drawer-role" id="mob-urole">—</div>
             </div>
+          </div>
+          <div class="mob-drawer-project" id="mob-project-switcher" role="button" tabindex="0">
+            <div class="mob-drawer-project-dot" id="mob-project-dot" style="background:#374151"></div>
+            <div class="mob-drawer-project-info">
+              <div class="mob-drawer-project-label">Проект</div>
+              <div class="mob-drawer-project-name" id="mob-project-name">Не выбран</div>
+            </div>
+            <svg class="mob-drawer-project-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </div>
         </div>
         <nav class="mob-drawer-nav" id="mob-drawer-nav">
@@ -247,22 +277,9 @@
       </div>
     </div>
 
-    <aside id="sidebar">
-
-      <div class="sidebar-brand">
-        <button class="sidebar-user-btn" id="profile-panel-btn">
-          <div class="user-avatar" id="user-avatar">?</div>
-          <div class="user-info">
-            <div class="user-name" id="user-name">—</div>
-            <div class="user-role" id="user-role">—</div>
-          </div>
-        </button>
-      </div>
-
-
-
-
-      <div class="project-switcher" id="project-switcher">
+    <div class="app-shell-body">
+      <aside id="sidebar">
+        <div class="project-switcher" id="project-switcher">
         <div class="project-current">
           <div class="project-dot" id="sidebar-project-dot" style="background:#fc3f1d"></div>
           <div class="project-info">
@@ -400,24 +417,23 @@
           </div>
         </div>
       </nav>
-
-
-
-
-
-
-
-
-
-
-
-    </aside>
-
-    <main id="main-content">
-      <div id="page-container"></div>
-    </main>
+      </aside>
+      <main id="main-content">
+        <div id="page-container"></div>
+      </main>
+    </div>
 
   </div>
+
+
+
+
+
+
+
+
+
+
 
   <div id="toast-container"></div>
 
@@ -538,16 +554,33 @@
     }, 100);
 
     function openPanel() {
-      document.getElementById('profile-panel').classList.remove('hidden');
-      document.getElementById('profile-panel-overlay').classList.remove('hidden');
-      document.getElementById('profile-panel').classList.add('profile-panel--open');
+      var panel = document.getElementById('profile-panel');
+      var overlay = document.getElementById('profile-panel-overlay');
+      panel.classList.remove('hidden');
+      overlay.classList.remove('hidden');
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          panel.classList.add('profile-panel--open');
+        });
+      });
     }
 
     function closePanel() {
-    document.getElementById('profile-panel').classList.remove('profile-panel--open');
-    document.getElementById('profile-panel-overlay').classList.add('hidden');
-    document.getElementById('profile-panel').classList.add('hidden');
-}
+      var panel = document.getElementById('profile-panel');
+      var overlay = document.getElementById('profile-panel-overlay');
+      panel.classList.remove('profile-panel--open');
+      overlay.classList.add('hidden');
+      function addHidden() {
+        panel.removeEventListener('transitionend', addHidden);
+        panel.classList.add('hidden');
+      }
+      panel.addEventListener('transitionend', addHidden);
+      setTimeout(function() {
+        if (panel.classList.contains('profile-panel--open')) return;
+        panel.removeEventListener('transitionend', addHidden);
+        panel.classList.add('hidden');
+      }, 320);
+    }
 
     document.getElementById('profile-panel-overlay').addEventListener('click', closePanel);
 
@@ -598,16 +631,23 @@
       if (!drawer) return;
       // Синхронизируем данные пользователя
       syncUserToDrawer();
-      if (window.State && State.user) {
+      if (window.State && State.get) {
         var u = State.get('user');
-        var av = document.getElementById('mob-av');
-        if (u.avatar) {
-          av.innerHTML = '<img src="' + u.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
-        } else {
-          av.textContent = (u.name || '?').charAt(0).toUpperCase();
+        if (u) {
+          var av = document.getElementById('mob-av');
+          if (u.avatar) {
+            av.innerHTML = '<img src="' + u.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
+          } else {
+            av.textContent = (u.name || '?').charAt(0).toUpperCase();
+          }
+          document.getElementById('mob-uname').textContent = u.name || '—';
+          document.getElementById('mob-urole').textContent = u.role === 'admin' ? 'Администратор' : u.role === 'editor' ? 'Редактор' : 'Автор';
         }
-        document.getElementById('mob-uname').textContent = u.name || '—';
-        document.getElementById('mob-urole').textContent = u.role === 'admin' ? 'Администратор' : u.role === 'editor' ? 'Редактор' : 'Автор';
+        var proj = State.get('project');
+        var mn = document.getElementById('mob-project-name');
+        var md = document.getElementById('mob-project-dot');
+        if (mn) mn.textContent = proj ? proj.name : 'Не выбран';
+        if (md) md.style.background = proj ? (proj.color || '#6366f1') : '#374151';
       }
       drawer.classList.add('open');
     }
@@ -624,10 +664,10 @@
       var overlay = document.getElementById('mob-drawer-overlay');
       if (overlay) overlay.addEventListener('click', closeDrawer);
 
-      // Закрываем при переходе по ссылке
+      // Закрываем при переходе по ссылке или клике по проекту
       var drawer = document.getElementById('mobile-drawer');
       if (drawer) {
-        drawer.querySelectorAll('a, button').forEach(function(el) {
+        drawer.querySelectorAll('a, button, .mob-drawer-project').forEach(function(el) {
           el.addEventListener('click', closeDrawer);
         });
       }

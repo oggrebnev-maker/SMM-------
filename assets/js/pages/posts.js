@@ -123,7 +123,8 @@ const PagePosts = (() => {
 
   async function render() {
     const container = document.getElementById('page-container');
-    container.innerHTML = '<div class="loading-state">Загрузка...</div>';
+    const topbarLeft = document.getElementById('app-topbar-left');
+    if (container) container.innerHTML = '<div class="loading-state">Загрузка...</div>';
 
     try {
       const res = await API.get('/projects');
@@ -134,55 +135,58 @@ const PagePosts = (() => {
 
     const project = State.get('project');
     const projectName = project ? project.name : 'Не выбран';
+    const projectIcon = (p) => p && p.logo
+      ? `<span class="posts-topbar-dropdown-icon"><img src="${p.logo}" alt=""></span>`
+      : `<span class="posts-topbar-dropdown-dot" style="background:${p ? (p.color || '#6366f1') : '#9aa0b8'};"></span>`;
 
-    container.innerHTML = `
-      <div class="posts-page">
-        <header class="posts-topbar">
-          <div class="posts-topbar-inner">
-            <div class="posts-topbar-block">
-              <div class="posts-topbar-heading">Выбор проекта</div>
-              <div class="posts-topbar-project">
-                <button type="button" class="posts-topbar-dropdown" id="posts-project-btn" title="Выбор проекта">
-                <span class="posts-topbar-dropdown-dot" style="background:${project ? (project.color || '#6366f1') : '#9aa0b8'};"></span>
-                <span class="posts-topbar-dropdown-label">${projectName}</span>
-                <svg class="posts-topbar-dropdown-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    const topbarBlocksHtml = `
+      <div class="posts-topbar-block">
+        <div class="posts-topbar-heading">Выбор проекта</div>
+        <div class="posts-topbar-project">
+          <button type="button" class="posts-topbar-dropdown" id="posts-project-btn" title="Выбор проекта">
+            ${projectIcon(project)}
+            <span class="posts-topbar-dropdown-label">${projectName}</span>
+            <svg class="posts-topbar-dropdown-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <div class="posts-topbar-dropdown-panel hidden" id="posts-project-panel">
+            ${projects.length ? projects.map(p => `
+              <button type="button" class="posts-topbar-dropdown-item ${project && p.id == project.id ? 'active' : ''}" data-id="${p.id}">
+                ${p.logo ? `<span class="posts-topbar-dropdown-icon"><img src="${p.logo}" alt=""></span>` : `<span class="posts-topbar-dropdown-dot" style="background:${p.color || '#6366f1'};"></span>`}
+                <span>${p.name}</span>
               </button>
-              <div class="posts-topbar-dropdown-panel hidden" id="posts-project-panel">
-                ${projects.length ? projects.map(p => `
-                  <button type="button" class="posts-topbar-dropdown-item ${project && p.id == project.id ? 'active' : ''}" data-id="${p.id}">
-                    <span class="posts-topbar-dropdown-dot" style="background:${p.color || '#6366f1'};"></span>
-                    <span>${p.name}</span>
-                  </button>
-                `).join('') : '<div class="posts-topbar-dropdown-empty">Нет проектов</div>'}
-              </div>
-              </div>
-            </div>
-            <div class="posts-topbar-block">
-              <div class="posts-topbar-heading">${getDateBlockTitle()}</div>
-              <div class="posts-topbar-date">
-              <button type="button" class="posts-topbar-arrow" id="posts-date-prev" title="Назад" aria-label="Назад">
-                <svg viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <span class="posts-topbar-date-value" id="posts-date-label">${getDateLabel()}</span>
-              <button type="button" class="posts-topbar-arrow" id="posts-date-next" title="Вперёд" aria-label="Вперёд">
-                <svg viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              </div>
-            </div>
-            <div class="posts-topbar-block">
-              <div class="posts-topbar-heading">Режим просмотра</div>
-              <div class="posts-topbar-view">
-              <button type="button" class="posts-topbar-arrow" id="posts-view-prev" title="Предыдущий режим" aria-label="Предыдущий режим">
-                <svg viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <span class="posts-topbar-view-value" id="posts-view-label">${getViewLabel()}</span>
-              <button type="button" class="posts-topbar-arrow" id="posts-view-next" title="Следующий режим" aria-label="Следующий режим">
-                <svg viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              </div>
-            </div>
+            `).join('') : '<div class="posts-topbar-dropdown-empty">Нет проектов</div>'}
           </div>
-        </header>
+        </div>
+      </div>
+      <div class="posts-topbar-block">
+        <div class="posts-topbar-heading">${getDateBlockTitle()}</div>
+        <div class="posts-topbar-date">
+          <button type="button" class="posts-topbar-arrow" id="posts-date-prev" title="Назад" aria-label="Назад">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="posts-topbar-date-value" id="posts-date-label">${getDateLabel()}</span>
+          <button type="button" class="posts-topbar-arrow" id="posts-date-next" title="Вперёд" aria-label="Вперёд">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="posts-topbar-block">
+        <div class="posts-topbar-heading">Режим просмотра</div>
+        <div class="posts-topbar-view">
+          <button type="button" class="posts-topbar-arrow" id="posts-view-prev" title="Предыдущий режим" aria-label="Предыдущий режим">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="posts-topbar-view-value" id="posts-view-label">${getViewLabel()}</span>
+          <button type="button" class="posts-topbar-arrow" id="posts-view-next" title="Следующий режим" aria-label="Следующий режим">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+    if (topbarLeft) topbarLeft.innerHTML = topbarBlocksHtml;
+
+    if (container) container.innerHTML = `
+      <div class="posts-page">
         <div class="posts-content">
           <div class="posts-grid posts-grid--${viewMode}">
             <div class="posts-grid-inner">
