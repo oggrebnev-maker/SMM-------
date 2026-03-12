@@ -160,6 +160,9 @@ input[type="email"],
 input[type="password"],
 input[type="text"],
 input[type="tel"],
+input[type="date"],
+input[type="time"],
+input[type="url"],
 textarea {
   background: var(--bg);
   border: 1.5px solid var(--border);
@@ -173,6 +176,22 @@ textarea {
   transition: border-color .2s, box-shadow .2s;
   resize: vertical;
   width: 100%;
+  box-sizing: border-box;
+}
+
+/* Дата и время — та же высота и вид, что и у остальных полей */
+input[type="date"],
+input[type="time"] {
+  min-height: 42px;
+}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+  cursor: pointer;
+}
+input[type="date"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit {
+  color: var(--text);
 }
 
 input:focus, textarea:focus {
@@ -459,6 +478,37 @@ input::placeholder, textarea::placeholder {
   font-weight: 700;
 }
 
+/* Узкий сайдбар: только иконки */
+#app-shell.sidebar-closed .sidebar-nav {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+#app-shell.sidebar-closed .nav-item {
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px; /* почти квадрат при ховере */
+}
+#app-shell.sidebar-closed .nav-item span {
+  opacity: 0;
+  width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+#app-shell.sidebar-closed .nav-item svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* В узком сайдбаре иконка ИИ чуть крупнее, чтобы не казалась меньше */
+#app-shell.sidebar-closed .nav-item[data-page="ai-posts"] svg {
+  width: 26px;
+  height: 26px;
+}
+
 /* Аккордеон меню */
 .nav-accordion { margin-bottom: 2px; }
 .nav-accordion-header {
@@ -557,9 +607,95 @@ input::placeholder, textarea::placeholder {
   background: var(--accent);
   display: flex;
   align-items: center;
-  padding-left: 20px;
+  gap: 12px;
+  padding-left: 16px;
   padding-right: 16px;
   box-sizing: border-box;
+  overflow: hidden;
+  transition: width 0.2s ease;
+}
+
+/* Кнопка открыть/закрыть сайдбар */
+.sidebar-toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.sidebar-toggle:hover {
+  background: rgba(255,255,255,0.2);
+}
+.sidebar-toggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.sidebar-toggle-icon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+}
+.sidebar-toggle-icon--close { display: block; }
+.sidebar-toggle-icon--open { display: none; }
+#app-shell.sidebar-closed .sidebar-toggle-icon--close { display: none; }
+#app-shell.sidebar-closed .sidebar-toggle-icon--open { display: block; }
+
+/* Закрытый сайдбар: узкая полоса с иконками */
+#app-shell.sidebar-closed .app-topbar-left-strip {
+  width: 64px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+#app-shell.sidebar-closed #sidebar {
+  width: 64px;
+  min-width: 64px;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+  transition: width 0.2s ease, min-width 0.2s ease;
+}
+#sidebar {
+  transition: width 0.2s ease, min-width 0.2s ease;
+}
+
+/* Подложка при открытом сайдбаре на узком экране (768–949px) */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 199;
+  cursor: pointer;
+}
+@media (min-width: 768px) and (max-width: 949px) {
+  .sidebar-backdrop { display: block; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  #app-shell.sidebar-overlay .sidebar-backdrop { opacity: 1; pointer-events: auto; }
+  #sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--sidebar-w);
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  #app-shell.sidebar-closed #sidebar {
+    transform: translateX(-100%);
+    width: 0;
+    min-width: 0;
+  }
+  #app-shell:not(.sidebar-closed) #sidebar { transform: translateX(0); }
+  #app-shell.sidebar-closed .app-topbar-left-strip { width: 64px; }
 }
 
 .app-topbar-logo-link {
@@ -2594,6 +2730,7 @@ input::placeholder, textarea::placeholder {
   color: var(--muted);
   transition: transform .2s;
 }
+
 .posts-topbar-dropdown-panel {
   position: absolute;
   top: calc(100% + 4px);
@@ -2680,9 +2817,10 @@ input::placeholder, textarea::placeholder {
   font-size: 14px;
   font-weight: 600;
   color: var(--text);
-  min-width: 140px;
   text-align: center;
+  white-space: nowrap;
 }
+/* Значение режима просмотра чуть компактнее по ширине */
 .posts-topbar-view-value {
   min-width: 72px;
 }
@@ -2766,8 +2904,14 @@ input::placeholder, textarea::placeholder {
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 .posts-grid-cell-add:disabled {
-  opacity: 0.4;
   cursor: not-allowed;
+  background: rgba(252, 63, 29, 0.12);
+  color: var(--red);
+  box-shadow: none;
+}
+.posts-grid-cell-add:disabled:hover {
+  background: rgba(252, 63, 29, 0.12);
+  color: var(--red);
 }
 .posts-grid-cell-body {
   flex: 1;
@@ -2822,7 +2966,7 @@ input::placeholder, textarea::placeholder {
 @media (min-width: 768px) and (max-width: 1024px) {
   .posts-topbar-inner {
     padding: 14px 24px 12px;
-    gap: 20px;
+    gap: 18px;
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
@@ -2833,13 +2977,28 @@ input::placeholder, textarea::placeholder {
   .posts-topbar-dropdown { min-width: 120px; height: 32px; padding: 0 10px; }
   .posts-topbar-date,
   .posts-topbar-view { height: 32px; }
-  .posts-topbar-date-value { min-width: 120px; font-size: 13px; }
+  .posts-topbar-date-value,
+  .posts-topbar-view-value { font-size: 13px; }
   .posts-topbar-arrow { width: 32px; height: 32px; }
   .posts-topbar-arrow svg { width: 16px; height: 16px; }
   .posts-content {
     padding: 20px 24px 40px;
   }
 }
+
+/* Плотная раскладка для 768–970px: меньше промежутки и шрифт в полях даты/режима */
+@media (min-width: 768px) and (max-width: 970px) {
+  .posts-topbar-inner {
+    gap: 12px;
+  }
+  .posts-topbar-date,
+  .posts-topbar-view { height: 30px; }
+  .posts-topbar-date-value,
+  .posts-topbar-view-value {
+    font-size: 12px;
+  }
+}
+/* Средние ширины: дополнительная логика не используется (возвращено к базовому поведению) */
 
 /* ── Публикации: телефоны (≤767px) ───────────────────────────────── */
 @media (max-width: 767px) {
@@ -2856,3 +3015,9 @@ input::placeholder, textarea::placeholder {
   .posts-content { padding: 16px; }
 }
 
+
+/* Топбар: на средних экранах (768–1199px) показываем только аватар и стрелку */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .topbar-profile-info { display: none; }
+  .topbar-profile-btn { gap: 8px; padding-right: 10px; }
+}

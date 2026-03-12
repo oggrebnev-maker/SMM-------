@@ -29,7 +29,8 @@ const PagePosts = (() => {
   function formatWeekRange(monday) {
     const sun = new Date(monday);
     sun.setDate(sun.getDate() + 6);
-    return `${monday.getDate()}–${sun.getDate()} ${MONTHS[monday.getMonth()]} ${monday.getFullYear()}`;
+    const month = String(monday.getMonth() + 1).padStart(2, '0');
+    return `${monday.getDate()}–${sun.getDate()}.${month}`;
   }
 
   function formatMonth(d) {
@@ -135,6 +136,7 @@ const PagePosts = (() => {
 
     const project = State.get('project');
     const projectName = project ? project.name : 'Не выбран';
+    const projectNameShort = projectName.length > 20 ? projectName.slice(0, 20) + '…' : projectName;
     const projectIcon = (p) => p && p.logo
       ? `<span class="posts-topbar-dropdown-icon"><img src="${p.logo}" alt=""></span>`
       : `<span class="posts-topbar-dropdown-dot" style="background:${p ? (p.color || '#6366f1') : '#9aa0b8'};"></span>`;
@@ -145,7 +147,7 @@ const PagePosts = (() => {
         <div class="posts-topbar-project">
           <button type="button" class="posts-topbar-dropdown" id="posts-project-btn" title="Выбор проекта">
             ${projectIcon(project)}
-            <span class="posts-topbar-dropdown-label">${projectName}</span>
+            <span class="posts-topbar-dropdown-label">${projectNameShort}</span>
             <svg class="posts-topbar-dropdown-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
           <div class="posts-topbar-dropdown-panel hidden" id="posts-project-panel">
@@ -190,17 +192,24 @@ const PagePosts = (() => {
         <div class="posts-content">
           <div class="posts-grid posts-grid--${viewMode}">
             <div class="posts-grid-inner">
-              ${(viewMode === VIEW_WEEK ? getDaysForWeek() : getDaysForMonth()).map(cell => `
+              ${(viewMode === VIEW_WEEK ? getDaysForWeek() : getDaysForMonth()).map(cell => {
+                const todayStart = new Date();
+                todayStart.setHours(0, 0, 0, 0);
+                const isPast = cell.date ? cell.date < todayStart : true;
+                const canAdd = cell.date && !isPast;
+                const dateStr = cell.date ? cell.date.toISOString().slice(0, 10) : '';
+                return `
                 <div class="posts-grid-cell ${cell.date ? '' : 'posts-grid-cell--empty'}">
                   <div class="posts-grid-cell-head">
                     ${cell.dayName ? `<span class="posts-grid-cell-day">${cell.dayName}</span>` : ''}
-                    <button type="button" class="posts-grid-cell-add" title="Добавить пост" aria-label="Добавить пост" ${cell.date ? `data-date="${cell.date.toISOString().slice(0,10)}"` : 'disabled'}>+</button>
+                    <button type="button" class="posts-grid-cell-add" title="${canAdd ? 'Добавить пост' : (isPast ? 'Прошлая дата' : '')}" aria-label="${canAdd ? 'Добавить пост' : (isPast ? 'Прошлая дата' : '')}" ${canAdd ? `data-date="${dateStr}"` : 'disabled'}>${canAdd ? '+' : '−'}</button>
                   </div>
                   <div class="posts-grid-cell-body">
                     ${cell.dayNum != null ? `<span class="posts-grid-cell-num">${cell.dayNum}</span>` : ''}
                   </div>
                 </div>
-              `).join('')}
+              `;
+              }).join('')}
             </div>
           </div>
         </div>
@@ -374,12 +383,8 @@ const PagePosts = (() => {
           render();
         });
       });
-      document.addEventListener('click', (e) => {
-        if (!projectBtn.contains(e.target) && !projectPanel.contains(e.target)) {
-          projectPanel.classList.add('hidden');
-        }
-      });
     }
+
 
     document.querySelectorAll('.posts-grid-cell-add:not([disabled])').forEach(btn => {
       btn.addEventListener('click', () => {

@@ -186,6 +186,68 @@ const App = (() => {
     }
   }
 
+  // ─── Sidebar открыть/закрыть (при <950px авто-закрытие, пользователь может открыть сам) ───
+  const SIDEBAR_STORAGE_KEY = 'sidebarClosed';
+  const SIDEBAR_AUTO_CLOSE_WIDTH = 950;
+
+  function getSidebarClosed() {
+    try {
+      return localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function setSidebarClosed(closed) {
+    try {
+      localStorage.setItem(SIDEBAR_STORAGE_KEY, closed ? '1' : '0');
+    } catch (e) {}
+  }
+
+  function applySidebarState(closed) {
+    const shell = $('app-shell');
+    if (!shell) return;
+    shell.classList.toggle('sidebar-closed', closed);
+    const isNarrow = window.innerWidth < SIDEBAR_AUTO_CLOSE_WIDTH;
+    shell.classList.toggle('sidebar-overlay', isNarrow && !closed);
+  }
+
+  function initSidebarToggle() {
+    const shell = $('app-shell');
+    const toggleBtn = $('sidebar-toggle');
+    const backdrop = $('sidebar-backdrop');
+    if (!shell || !toggleBtn) return;
+
+    let closed = getSidebarClosed();
+    if (window.innerWidth < SIDEBAR_AUTO_CLOSE_WIDTH) closed = true;
+    setSidebarClosed(closed);
+    applySidebarState(closed);
+
+    toggleBtn.addEventListener('click', () => {
+      closed = !getSidebarClosed();
+      setSidebarClosed(closed);
+      applySidebarState(closed);
+    });
+
+    if (backdrop) {
+      backdrop.addEventListener('click', () => {
+        setSidebarClosed(true);
+        applySidebarState(true);
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      const w = window.innerWidth;
+      if (w < SIDEBAR_AUTO_CLOSE_WIDTH) {
+        if (!getSidebarClosed()) {
+          setSidebarClosed(true);
+          applySidebarState(true);
+        }
+      }
+      applySidebarState(getSidebarClosed());
+    });
+  }
+
   function initAccordion() {
     document.querySelectorAll('.nav-accordion-header').forEach(header => {
       header.addEventListener('click', (e) => {
@@ -468,6 +530,7 @@ const App = (() => {
     initVerifyScreen();
     initVKLoginBtn();
     initAccordion();
+    initSidebarToggle();
 
     const route  = getRoute();
     const params = getQueryParams();
