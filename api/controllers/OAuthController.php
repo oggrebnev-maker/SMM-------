@@ -38,8 +38,15 @@ class OAuthController {
                 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
                 $payload = AuthMiddleware::verifyToken($token);
                 if ($payload && isset($payload['user_id'])) {
-                    $mode   = 'link';
-                    $userId = $payload['user_id'];
+                    $userId = (int) $payload['user_id'];
+                    $stmt   = $this->db->prepare("SELECT id FROM users WHERE id = ? AND is_active = 1 LIMIT 1");
+                    $stmt->execute([$userId]);
+                    if ($stmt->fetch()) {
+                        $mode = 'link';
+                    } else {
+                        $this->redirectToFrontend('/#/profile?oauth=error&provider=' . $provider . '&msg=' . urlencode('Сессия недействительна. Выйдите и войдите снова, затем нажмите «Привязать».'));
+                        return;
+                    }
                 }
             } catch (Exception $e) {}
         }
@@ -73,7 +80,9 @@ class OAuthController {
             return;
         }
 
-        $stateData = json_decode(base64_decode($state), true);
+        $state = str_replace(' ', '+', $state);
+        $stateDecoded = base64_decode($state, true);
+        $stateData = $stateDecoded !== false ? json_decode($stateDecoded, true) : null;
         if (!$stateData || !isset($stateData['mode'])) {
             $this->redirectToFrontend('/#/profile?oauth=error&provider=' . $provider);
             return;
@@ -90,11 +99,12 @@ class OAuthController {
         }
 
         try {
-            $tokenData = $this->oauth->getAccessToken($provider, $code, $codeVerifier);
+            $tokenData = $this->oauth->getAccessToken($provider, $code, $codeVerifier, $state);
             $profile   = $this->oauth->getUserProfile($provider, $tokenData);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             error_log('[OAuth callback] ' . $provider . ' error: ' . $e->getMessage());
-            $this->redirectToFrontend('/#/profile?oauth=error&provider=' . $provider . '&msg=' . urlencode($e->getMessage()));
+            $msg = $e->getMessage();
+            $this->redirectToFrontend('/#/login?oauth=error&provider=' . $provider . '&msg=' . urlencode($msg));
             return;
         }
 
@@ -103,18 +113,64 @@ class OAuthController {
         $oauthId     = $profile['id'];
 
         if ($stateData['mode'] === 'link') {
-            $userId = (int)$stateData['user_id'];
-
-            $stmt = $this->db->prepare("SELECT id FROM users WHERE {$oauthField} = ? AND id != ?");
-            $stmt->execute([$oauthId, $userId]);
-            if ($stmt->fetch()) {
-                $this->redirectToFrontend('/#/profile?oauth=already_used&provider=' . $provider);
+            $userId = isset($stateData['user_id']) ? (int)$stateData['user_id'] : 0;
+            if ($userId <= 0) {
+                error_log('[OAuth callback] link mode but user_id missing or invalid in state');
+                $this->redirectToFrontend('/#/profile?oauth=error&provider=' . $provider . '&msg=' . urlencode('Сессия истекла. Войдите снова и нажмите «Привязать».'));
                 return;
             }
 
-            $nameField = 'oauth_' . $provider . '_name';
-            $stmt = $this->db->prepare("UPDATE users SET {$oauthField} = ?, {$avatarField} = ?, {$nameField} = ? WHERE id = ?");
-            $stmt->execute([$oauthId, $profile['avatar'] ?? null, $profile['name'] ?? null, $userId]);
+            try {
+                $stmt = $this->db->prepare("SELECT id FROM users WHERE id = ? AND is_active = 1 LIMIT 1");
+                $stmt->execute([$userId]);
+                if (!$stmt->fetch()) {
+                    error_log('[OAuth callback] link: user not found or inactive, user_id=' . $userId);
+                    $this->redirectToFrontend('/#/profile?oauth=error&provider=' . $provider . '&msg=' . urlencode('Пользователь не найден. Войдите снова и попробуйте привязать.'));
+                    return;
+                }
+
+                $stmt = $this->db->prepare("SELECT id FROM users WHERE {$oauthField} = ? AND id != ?");
+                $stmt->execute([$oauthId, $userId]);
+                if ($stmt->fetch()) {
+                    $this->redirectToFrontend('/#/profile?oauth=already_used&provider=' . $provider);
+                    return;
+                }
+
+                $nameField = 'oauth_' . $provider . '_name';
+                $stmt = $this->db->prepare("UPDATE users SET {$oauthField} = ?, {$avatarField} = ?, {$nameField} = ? WHERE id = ?");
+                $stmt->execute([$oauthId, $profile['avatar'] ?? null, $profile['name'] ?? null, $userId]);
+                if ($stmt->rowCount() === 0) {
+                    $stmt = $this->db->prepare("SELECT id FROM users WHERE id = ? AND {$oauthField} = ? LIMIT 1");
+                    $stmt->execute([$userId, $oauthId]);
+                    if (!$stmt->fetch()) {
+                        error_log('[OAuth callback] link: UPDATE affected 0 rows for user_id=' . $userId . ', oauth_id=' . $oauthId);
+                        $this->redirectToFrontend('/#/profile?oauth=error&provider=' . $provider . '&msg=' . urlencode('Не удалось сохранить привязку. Попробуйте снова.'));
+                        return;
+                    }
+                }
+
+                if (!empty($profile['phone'])) {
+                    $stmt = $this->db->prepare("UPDATE users SET phone = ? WHERE id = ? AND (phone IS NULL OR phone = '')");
+                    $stmt->execute([$profile['phone'], $userId]);
+                }
+
+                $profileName = trim($profile['name'] ?? '');
+                if ($profileName !== '' && $profileName !== 'Пользователь VK') {
+                    $stmt = $this->db->prepare("SELECT name FROM users WHERE id = ? LIMIT 1");
+                    $stmt->execute([$userId]);
+                    $currentName = trim($stmt->fetchColumn() ?: '');
+                    $currentLooksLikeLogin = $currentName === '' || strpos($currentName, ' ') === false;
+                    $profileLooksLikeName = strpos($profileName, ' ') !== false || preg_match('/[а-яА-ЯёЁ]/u', $profileName);
+                    if ($profileLooksLikeName && $currentLooksLikeLogin) {
+                        $stmt = $this->db->prepare("UPDATE users SET name = ? WHERE id = ?");
+                        $stmt->execute([$profileName, $userId]);
+                    }
+                }
+            } catch (Throwable $e) {
+                error_log('[OAuth callback] link DB error: ' . $e->getMessage());
+                $this->redirectToFrontend('/#/profile?oauth=error&provider=' . $provider . '&msg=' . urlencode('Ошибка сохранения. Проверьте структуру БД (колонки oauth_*).'));
+                return;
+            }
 
             $this->redirectToFrontend('/#/profile?oauth=success&provider=' . $provider);
 
@@ -124,40 +180,44 @@ class OAuthController {
             $stmt->execute([$oauthId]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Если не найден по oauth id — ищем по email (для режима register)
-            if (!$user && !empty($profile['email']) && $stateData['mode'] === 'register') {
-                $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
-                $stmt->execute([$profile['email']]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                // Привязываем соцсеть к найденному аккаунту
-                if ($user) {
-                    $nameField = 'oauth_' . $provider . '_name';
-                    $stmt = $this->db->prepare("UPDATE users SET {$oauthField} = ?, {$avatarField} = ?, {$nameField} = ? WHERE id = ?");
-                    $stmt->execute([$oauthId, $profile['avatar'] ?? null, $profile['name'] ?? null, $user['id']]);
+            // Если не найден по oauth id — ищем по email и привязываем соцсеть (и при входе, и при регистрации)
+            if (!$user && !empty($profile['email'])) {
+                $email = is_string($profile['email']) ? strtolower(trim($profile['email'])) : '';
+                if ($email !== '') {
+                    $stmt = $this->db->prepare("SELECT * FROM users WHERE LOWER(email) = ? AND is_active = 1 LIMIT 1");
+                    $stmt->execute([$email]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                    if ($user) {
+                        $nameField = 'oauth_' . $provider . '_name';
+                        $stmt = $this->db->prepare("UPDATE users SET {$oauthField} = ?, {$avatarField} = ?, {$nameField} = ? WHERE id = ?");
+                        $stmt->execute([$oauthId, $profile['avatar'] ?? null, $profile['name'] ?? null, $user['id']]);
+                    }
                 }
             }
 
             if (!$user) {
-                if ($stateData['mode'] === 'register') {
-                    // Создаём нового пользователя
-                    $name     = $profile['name'] ?? $profile['email'] ?? 'Пользователь';
-                    $email    = $profile['email'] ?? ($provider . '_' . $oauthId . '@oauth.local');
-                    $phone    = $profile['phone'] ?? null;
-                    $avatar   = $profile['avatar'] ?? null;
-                    $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
+                // Первый вход через соцсеть: создаём пользователя (и при «вход», и при «регистрации»)
+                $name     = $profile['name'] ?? $profile['email'] ?? 'Пользователь';
+                $email    = $profile['email'] ?? ($provider . '_' . $oauthId . '@oauth.local');
+                $phone    = $profile['phone'] ?? null;
+                $avatar   = $profile['avatar'] ?? null;
+                $password = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
 
-                    $nameField = 'oauth_' . $provider . '_name';
-                    $stmt = $this->db->prepare("INSERT INTO users (name, email, phone, password, role, avatar, is_active, email_verified, {$oauthField}, {$avatarField}, {$nameField}) VALUES (?, ?, ?, ?, 'author', ?, 1, 1, ?, ?, ?)");
-                    $stmt->execute([$name, $email, $phone, $password, $avatar, $oauthId, $avatar, $profile['name'] ?? null]);
-                    $newId = $this->db->lastInsertId();
+                $nameField = 'oauth_' . $provider . '_name';
+                $stmt = $this->db->prepare("INSERT INTO users (name, email, phone, password, role, avatar, is_active, email_verified, {$oauthField}, {$avatarField}, {$nameField}) VALUES (?, ?, ?, ?, 'author', ?, 1, 1, ?, ?, ?)");
+                $stmt->execute([$name, $email, $phone, $password, $avatar, $oauthId, $avatar, $profile['name'] ?? null]);
+                $newId = $this->db->lastInsertId();
 
-                    $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
-                    $stmt->execute([$newId]);
-                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                } else {
-                    $this->redirectToFrontend('/#/login?oauth=unlinked&provider=' . $provider);
-                    return;
-                }
+                $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ?");
+                $stmt->execute([$newId]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+
+            // Если из соцсети пришёл телефон, а в профиле он пустой — подставляем
+            if (!empty($profile['phone']) && empty($user['phone'])) {
+                $stmt = $this->db->prepare("UPDATE users SET phone = ? WHERE id = ?");
+                $stmt->execute([$profile['phone'], $user['id']]);
+                $user['phone'] = $profile['phone'];
             }
 
             require_once __DIR__ . '/../middleware/AuthMiddleware.php';

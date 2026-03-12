@@ -16,16 +16,22 @@ class AuthController {
     }
 
     private function getSmtp(): array {
-        $stmt = $this->db->query("SELECT `key`, `value` FROM system_settings");
         $s = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) $s[$row['key']] = $row['value'];
+        try {
+            $stmt = $this->db->query("SELECT `key`, `value` FROM system_settings");
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $s[$row['key']] = $row['value'];
+            }
+        } catch (Throwable $e) {
+            // Таблица может отсутствовать — используем константы из config
+        }
         return [
-            'host'     => $s['smtp_host']      ?? SMTP_HOST,
-            'port'     => (int)($s['smtp_port'] ?? SMTP_PORT),
-            'user'     => $s['smtp_user']      ?? SMTP_USER,
-            'pass'     => $s['smtp_pass']      ?? SMTP_PASS,
-            'from'     => $s['smtp_from']      ?? SMTP_FROM,
-            'fromName' => $s['smtp_from_name'] ?? SMTP_FROM_NAME,
+            'host'     => $s['smtp_host']      ?? (defined('SMTP_HOST') ? SMTP_HOST : ''),
+            'port'     => (int)($s['smtp_port'] ?? (defined('SMTP_PORT') ? SMTP_PORT : 587)),
+            'user'     => $s['smtp_user']      ?? (defined('SMTP_USER') ? SMTP_USER : ''),
+            'pass'     => $s['smtp_pass']      ?? (defined('SMTP_PASS') ? SMTP_PASS : ''),
+            'from'     => $s['smtp_from']      ?? (defined('SMTP_FROM') ? SMTP_FROM : ''),
+            'fromName' => $s['smtp_from_name'] ?? (defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : ''),
         ];
     }
 

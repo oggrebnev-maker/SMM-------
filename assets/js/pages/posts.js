@@ -15,6 +15,8 @@ const PagePosts = (() => {
   let viewMode = VIEW_WEEK;
   /** Список загруженных изображений поста: { file: File, objectUrl: string }[] */
   let postsFormMediaList = [];
+  /** Кнопки поста: { text: string, url: string }[] */
+  let postsFormButtonsList = [];
 
   function getMonday(d) {
     const date = new Date(d);
@@ -263,6 +265,38 @@ const PagePosts = (() => {
                     </button>
                   </div>
                 </div>
+                <div class="form-group posts-buttons-block hidden" id="posts-buttons-block">
+                  <div class="posts-buttons-block-header">
+                    <span class="posts-form-section-label">Кнопки</span>
+                    <div class="posts-buttons-block-actions">
+                      <button type="button" class="btn-icon posts-buttons-trash" id="posts-buttons-trash" title="Удалить блок кнопок" aria-label="Удалить блок кнопок">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/><path d="M10 11v6M14 11v6"/></svg>
+                      </button>
+                      <button type="button" class="btn btn-ghost btn-sm" id="posts-buttons-add">+ Добавить</button>
+                    </div>
+                  </div>
+                  <div id="posts-buttons-chips" class="posts-buttons-chips"></div>
+                </div>
+                <div id="posts-add-button-modal" class="posts-add-button-modal hidden">
+                  <div class="posts-add-button-modal-backdrop" id="posts-add-button-modal-backdrop"></div>
+                  <div class="posts-add-button-modal-box">
+                    <h3 class="posts-add-button-modal-title">Добавить кнопку</h3>
+                    <div class="form-group">
+                      <label for="posts-add-button-text">Текст на кнопке *</label>
+                      <input type="text" id="posts-add-button-text" placeholder="Текст на кнопке" maxlength="120">
+                      <span class="form-field-error hidden" id="posts-add-button-text-error">Это обязательное поле</span>
+                    </div>
+                    <div class="form-group">
+                      <label for="posts-add-button-url">Ссылка *</label>
+                      <input type="url" id="posts-add-button-url" placeholder="https://...">
+                      <span class="form-field-error hidden" id="posts-add-button-url-error">Это обязательное поле</span>
+                    </div>
+                    <div class="posts-modal-footer posts-add-button-modal-footer">
+                      <button type="button" class="btn btn-ghost" id="posts-add-button-cancel">Отмена</button>
+                      <button type="button" class="btn btn-blue" id="posts-add-button-save">Сохранить</button>
+                    </div>
+                  </div>
+                </div>
                 <div class="form-row">
                   <div class="form-group">
                     <label for="posts-form-date">Дата публикации</label>
@@ -419,7 +453,83 @@ const PagePosts = (() => {
           }
         });
       }
+      const btnAttachButton = document.querySelector('[data-attach="button"]');
+      const buttonsBlock = document.getElementById('posts-buttons-block');
+      if (btnAttachButton && buttonsBlock) {
+        btnAttachButton.addEventListener('click', () => {
+          buttonsBlock.classList.remove('hidden');
+          document.querySelectorAll('.posts-form-attach-row .btn-instr').forEach(el => el.classList.remove('active'));
+          btnAttachButton.classList.add('active');
+          renderPostsFormButtons();
+        });
+      }
+      const trashBtn = document.getElementById('posts-buttons-trash');
+      if (trashBtn && buttonsBlock) {
+        trashBtn.addEventListener('click', () => {
+          postsFormButtonsList.length = 0;
+          renderPostsFormButtons();
+          buttonsBlock.classList.add('hidden');
+          const btn = document.querySelector('[data-attach="button"]');
+          if (btn) btn.classList.remove('active');
+        });
+      }
+      const addBtn = document.getElementById('posts-buttons-add');
+      const addModal = document.getElementById('posts-add-button-modal');
+      if (addBtn && addModal) {
+        addBtn.addEventListener('click', () => {
+          document.getElementById('posts-add-button-text').value = '';
+          document.getElementById('posts-add-button-url').value = '';
+          document.getElementById('posts-add-button-text-error').classList.add('hidden');
+          document.getElementById('posts-add-button-url-error').classList.add('hidden');
+          addModal.classList.remove('hidden');
+        });
+      }
+      if (addModal) {
+        const backdrop = document.getElementById('posts-add-button-modal-backdrop');
+        const cancelBtn = document.getElementById('posts-add-button-cancel');
+        const saveBtn = document.getElementById('posts-add-button-save');
+        function closeAddButtonModal() { addModal.classList.add('hidden'); }
+        if (backdrop) backdrop.addEventListener('click', closeAddButtonModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeAddButtonModal);
+        if (saveBtn) saveBtn.addEventListener('click', () => {
+          const text = (document.getElementById('posts-add-button-text').value || '').trim();
+          const url = (document.getElementById('posts-add-button-url').value || '').trim();
+          const textErr = document.getElementById('posts-add-button-text-error');
+          const urlErr = document.getElementById('posts-add-button-url-error');
+          textErr.classList.add('hidden');
+          urlErr.classList.add('hidden');
+          let ok = true;
+          if (!text) { textErr.classList.remove('hidden'); ok = false; }
+          if (!url) { urlErr.classList.remove('hidden'); ok = false; }
+          if (!ok) return;
+          postsFormButtonsList.push({ text, url });
+          renderPostsFormButtons();
+          closeAddButtonModal();
+        });
+      }
     }
+  }
+
+  function renderPostsFormButtons() {
+    const container = document.getElementById('posts-buttons-chips');
+    if (!container) return;
+    container.innerHTML = '';
+    postsFormButtonsList.forEach((item, index) => {
+      const chip = document.createElement('span');
+      chip.className = 'posts-buttons-chip';
+      chip.textContent = item.text;
+      const rm = document.createElement('button');
+      rm.type = 'button';
+      rm.className = 'posts-buttons-chip-remove';
+      rm.setAttribute('aria-label', 'Удалить кнопку');
+      rm.textContent = '×';
+      rm.addEventListener('click', () => {
+        postsFormButtonsList.splice(index, 1);
+        renderPostsFormButtons();
+      });
+      chip.appendChild(rm);
+      container.appendChild(chip);
+    });
   }
 
   function updatePreviewText() {
@@ -548,6 +658,14 @@ const PagePosts = (() => {
     errorEl.textContent = '';
     clearPostsFormMedia();
     renderPostsFormMedia();
+    postsFormButtonsList.length = 0;
+    renderPostsFormButtons();
+    const buttonsBlockReset = document.getElementById('posts-buttons-block');
+    if (buttonsBlockReset) buttonsBlockReset.classList.add('hidden');
+    const btnAttachReset = document.querySelector('[data-attach="button"]');
+    if (btnAttachReset) btnAttachReset.classList.remove('active');
+    const addModalReset = document.getElementById('posts-add-button-modal');
+    if (addModalReset) addModalReset.classList.add('hidden');
     const mediaInputReset = document.getElementById('posts-form-media-input');
     if (mediaInputReset) mediaInputReset.value = '';
     channelsContainer.innerHTML = '<span class="posts-form-channels-loading">Загрузка каналов...</span>';
@@ -729,13 +847,15 @@ const PagePosts = (() => {
         fd.append('scheduled_at', scheduled_at);
         channelIds.forEach(id => fd.append('channel_ids[]', id));
         postsFormMediaList.forEach(item => fd.append('image[]', item.file));
+        postsFormButtonsList.forEach((b, i) => {
+          fd.append('buttons[' + i + '][text]', b.text);
+          fd.append('buttons[' + i + '][url]', b.url);
+        });
         await API.upload('/projects/' + project.id + '/posts', fd);
       } else {
-        await API.post('/projects/' + project.id + '/posts', {
-          content,
-          scheduled_at,
-          channel_ids: channelIds.length ? channelIds : undefined,
-        });
+        const body = { content, scheduled_at, channel_ids: channelIds.length ? channelIds : undefined };
+        if (postsFormButtonsList.length) body.buttons = postsFormButtonsList;
+        await API.post('/projects/' + project.id + '/posts', body);
       }
       closeCreateModal();
       if (typeof App !== 'undefined' && App.toast) App.toast('Пост создан и запланирован', 'success');

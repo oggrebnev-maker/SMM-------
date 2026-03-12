@@ -19,7 +19,7 @@ const PageProfile = (() => {
               <div class="profile-avatar-actions">
                 <label class="btn btn-ghost btn-sm" id="avatar-upload-label" for="avatar-input">Загрузить фото</label>
                 <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none">
-                <button class="btn btn-ghost btn-sm" id="avatar-delete-btn" style="display:none">Удалить</button>
+                <button class="btn btn-danger btn-sm" id="avatar-delete-btn" style="display:none">Удалить</button>
               </div>
               <p class="profile-avatar-hint" id="avatar-hint">JPG, PNG или WEBP · до 1MB</p>
             </div>
@@ -144,7 +144,8 @@ const PageProfile = (() => {
     } else if (oauth === 'already_used') {
       App.toast(`Этот аккаунт ${name} уже привязан к другому пользователю`, 'error');
     } else {
-      App.toast(`Не удалось привязать ${name}`, 'error');
+      const msg = params.get('msg') ? decodeURIComponent(params.get('msg')) : `Не удалось привязать ${name}`;
+      App.toast(msg, 'error');
     }
   }
 
@@ -232,11 +233,14 @@ const PageProfile = (() => {
 
   function linkSocial(provider) {
     const token = localStorage.getItem('sp_token');
+    if (!token) {
+      App.toast('Войдите в аккаунт, чтобы привязать соцсеть', 'error');
+      return;
+    }
     if (provider === 'vk') {
       linkVK(token);
     } else {
-      let url = `/api/auth/oauth/${provider}`;
-      if (token) url += `?token=${encodeURIComponent(token)}`;
+      const url = `/api/auth/oauth/${provider}?token=${encodeURIComponent(token)}`;
       window.location.href = url;
     }
   }
@@ -249,8 +253,7 @@ const PageProfile = (() => {
     const hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier));
     const codeChallenge = btoa(String.fromCharCode(...new Uint8Array(hashBuf)))
       .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    let url = `/api/auth/oauth/vk?cv=${encodeURIComponent(codeVerifier)}`;
-    if (token) url += `&token=${encodeURIComponent(token)}`;
+    const url = `/api/auth/oauth/vk?cv=${encodeURIComponent(codeVerifier)}&token=${encodeURIComponent(token)}`;
     window.location.href = url;
   }
 

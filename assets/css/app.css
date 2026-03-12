@@ -246,6 +246,13 @@ input::placeholder, textarea::placeholder {
 }
 .btn-blue:hover { background: linear-gradient(0deg, rgb(75,94,148), rgb(51,63,100)); }
 
+.btn-danger {
+  background: rgba(252, 63, 29, 0.1);
+  color: var(--red);
+  border: 1px solid rgba(252, 63, 29, 0.35);
+}
+.btn-danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
 .btn-full { width: 100%; }
 
 .btn-sm { padding: 8px 16px !important; font-size: 10px !important; }
@@ -491,13 +498,21 @@ input::placeholder, textarea::placeholder {
 
 .user-avatar {
   width: 36px; height: 36px;
-  border-radius: 8px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  box-sizing: border-box;
 
-  color: #fff;
+  color: #333;
   display: flex; align-items: center; justify-content: center;
   font-size: 14px; font-weight: 800;
   flex-shrink: 0;
   overflow: hidden;
+}
+.user-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .user-info { min-width: 0; flex: 1; }
@@ -895,6 +910,8 @@ input::placeholder, textarea::placeholder {
   width: 100%;
   padding: 24px 28px 28px;
   background: transparent;
+  position: relative;
+  box-sizing: border-box;
   border: none;
   border-radius: 0;
   box-shadow: none;
@@ -1030,6 +1047,132 @@ input::placeholder, textarea::placeholder {
   gap: 12px;
   padding-top: 16px;
   flex-shrink: 0;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.posts-modal-footer .btn {
+  min-width: 0;
+}
+
+/* Блок «Кнопки» в форме поста */
+.posts-buttons-block {
+  margin-top: 12px;
+}
+.posts-buttons-block.hidden {
+  display: none !important;
+}
+.posts-buttons-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.posts-buttons-block-header .posts-form-section-label {
+  margin-bottom: 0;
+}
+.posts-buttons-block-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.posts-buttons-trash {
+  color: var(--muted);
+  padding: 6px;
+}
+.posts-buttons-trash:hover {
+  color: var(--error, #dc2626);
+}
+.posts-buttons-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.posts-buttons-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--surface2);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text);
+}
+.posts-buttons-chip-remove {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+.posts-buttons-chip-remove:hover {
+  color: var(--text);
+  background: rgba(0,0,0,0.06);
+}
+
+/* Модалка «Добавить кнопку» */
+.posts-add-button-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+.posts-add-button-modal.hidden {
+  display: none !important;
+}
+.posts-add-button-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+}
+.posts-add-button-modal-box {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  box-sizing: border-box;
+  min-width: 0;
+}
+.posts-add-button-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.posts-add-button-modal .form-group {
+  margin-bottom: 14px;
+}
+.posts-add-button-modal-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.posts-add-button-modal-footer .btn {
+  min-width: 0;
+}
+.form-field-error {
+  display: block;
+  font-size: 12px;
+  color: var(--error, #dc2626);
+  margin-top: 4px;
+}
+.form-field-error.hidden {
+  display: none !important;
 }
 
 /* Правая колонка — узкая, предпросмотр */
@@ -1441,15 +1584,31 @@ input::placeholder, textarea::placeholder {
 
 .profile-card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 20px; }
 
-.profile-avatar-section { display: flex; align-items: center; gap: 24px; }
+.profile-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.profile-avatar-right { min-width: 0; flex: 1; }
+.profile-avatar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.profile-avatar-actions .btn { flex-shrink: 0; }
 
 .profile-avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 
 .profile-avatar {
   width: 80px; height: 80px;
   border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  box-sizing: border-box;
+  color: #333;
   font-size: 32px;
   font-weight: 700;
   display: flex; align-items: center; justify-content: center;
@@ -1457,10 +1616,36 @@ input::placeholder, textarea::placeholder {
   flex-shrink: 0;
 }
 
-.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-avatar-actions { display: flex; gap: 8px; }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .profile-avatar-hint { font-size: 12px; color: var(--muted); line-height: 1.3; }
 .profile-form { display: flex; flex-direction: column; gap: 16px; }
+
+/* Профиль: адаптация под 4 размера (1400+ / 1024–1399 / 768–1023 / ≤767) */
+@media (max-width: 1399px) {
+  .profile-layout { max-width: 100%; }
+}
+@media (max-width: 1023px) {
+  .profile-card { padding: 20px; }
+  .profile-avatar-section { gap: 16px; }
+  .profile-avatar { width: 72px; height: 72px; font-size: 28px; }
+}
+@media (max-width: 767px) {
+  .profile-card { padding: 16px; border-radius: 10px; }
+  .profile-card-title { margin-bottom: 16px; font-size: 14px; }
+  .profile-avatar-section { gap: 12px; }
+  .profile-avatar { width: 64px; height: 64px; font-size: 24px; }
+  .profile-avatar-actions { gap: 6px; }
+  .profile-avatar-actions .btn { padding: 8px 12px; font-size: 12px; }
+  .profile-form { gap: 12px; }
+  .profile-avatar-hint { font-size: 11px; }
+}
+@media (max-width: 390px) {
+  .profile-card { padding: 12px; }
+  .profile-avatar-section { gap: 10px; }
+  .profile-avatar { width: 56px; height: 56px; font-size: 20px; }
+  .profile-avatar-actions { flex-direction: column; align-items: flex-start; }
+  .profile-avatar-actions .btn { width: 100%; min-width: 0; }
+}
 
 /* ── Social links ───────────────────────────────────────────────── */
 .social-links { display: flex; flex-direction: column; gap: 12px; }
@@ -1491,6 +1676,16 @@ input::placeholder, textarea::placeholder {
 .social-link-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
 .social-link-name   { font-size: 13px; font-weight: 600; color: var(--text); }
 .social-link-status { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+@media (max-width: 767px) {
+  .social-link-item { padding: 10px 0; min-width: 0; }
+  .social-link-info { gap: 8px; min-width: 0; }
+  .social-link-item .btn { flex-shrink: 0; margin-left: 8px; }
+}
+@media (max-width: 390px) {
+  .social-link-item { padding: 8px 0; }
+  .social-link-info { gap: 6px; }
+}
 
 /* ── OAuth buttons ──────────────────────────────────────────────── */
 .oauth-divider {

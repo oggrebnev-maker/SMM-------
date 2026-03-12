@@ -428,6 +428,12 @@ const App = (() => {
         setTimeout(() => toast('Соцсеть не привязана ни к одному аккаунту', 'error'), 100);
         return;
       }
+      if (params.oauth === 'error' && route === '/login') {
+        showAuth();
+        const msg = params.msg ? decodeURIComponent(params.msg) : 'Ошибка входа через соцсеть';
+        setTimeout(() => toast(msg, 'error'), 100);
+        return;
+      }
 
       if (params.token && route === '/verify-email') {
         await handleVerifyToken(params.token);
@@ -466,6 +472,12 @@ const App = (() => {
       history.replaceState(null, '', location.pathname + '#/login');
       showAuth();
       setTimeout(() => toast('Соцсеть не привязана ни к одному аккаунту', 'error'), 100);
+      return;
+    }
+    if (params.oauth === 'error' && route === '/login') {
+      showAuth();
+      const msg = params.msg ? decodeURIComponent(params.msg) : 'Ошибка входа через соцсеть';
+      setTimeout(() => toast(msg, 'error'), 100);
       return;
     }
 
@@ -535,8 +547,9 @@ const App = (() => {
     }, 5000);
   }
 
-  return { init, showAuth, showShell, navigate, toast };
+  return { init, showAuth, showShell, navigate, toast, showToast: toast };
 
 })();
 
+window.App = App;
 document.addEventListener('DOMContentLoaded', () => App.init());

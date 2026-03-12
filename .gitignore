@@ -13,3 +13,6 @@ api/cron/logs/*.log
 *.log
 .idea/
 .vscode/
+
+# Пароль от сервера
+S2%to9!oa1PW
