@@ -328,7 +328,77 @@ const PageProjects = (() => {
               <div id="project-view-section-watermark" class="project-view-section hidden" data-section="watermark"><p class="project-view-placeholder">Вотермарк</p></div>
               <div id="project-view-section-templates" class="project-view-section hidden" data-section="templates"><p class="project-view-placeholder">Шаблоны</p></div>
               <div id="project-view-section-hashtags" class="project-view-section hidden" data-section="hashtags"><p class="project-view-placeholder">Хэштеги</p></div>
-              <div id="project-view-section-utm" class="project-view-section hidden" data-section="utm"><p class="project-view-placeholder">UTM</p></div>
+              <div id="project-view-section-utm" class="project-view-section hidden" data-section="utm">
+                <div class="project-view-section-inner">
+                  <div class="project-view-card">
+                    <h2 class="project-view-section-title">UTM метки</h2>
+                    <p class="project-view-section-desc">Параметры UTM добавляются к ссылке и передают в системы аналитики (Яндекс.Метрика, Google Analytics) данные об источнике перехода. Так вы сможете видеть, откуда приходит трафик и насколько эффективны рекламные кампании.</p>
+                    <div class="project-view-utm-head">
+                      <label class="project-view-utm-enable">
+                        <input type="checkbox" id="project-view-utm-enabled" class="project-view-utm-checkbox">
+                        <span>Включить UTM генератор</span>
+                      </label>
+                      <span class="project-view-utm-help" id="project-view-utm-help">
+                        <span class="project-view-utm-help-tooltip">Когда пост публикуется, система сама заменяет специальные метки на настоящие данные. Например, вместо метки {post_date} появится реальная дата публикации, вместо {page_name} — название вашей страницы, и так далее. Вот полный список таких меток:<ul class="project-view-utm-help-list"><li><code>{page_id}</code> — ID страницы в соцсети</li><li><code>{page_name}</code> — название страницы в соцсети</li><li><code>{post_datetime}</code> — дата и время публикации</li><li><code>{post_date}</code> — дата публикации</li><li><code>{post_num}</code> — номер поста</li><li><code>{post_time}</code> — время публикации</li><li><code>{project}</code> — название проекта</li><li><code>{soc_net}</code> — соцсеть</li></ul></span>?</span>
+                    </div>
+                    <div class="project-view-utm-fields">
+                      <div class="form-group">
+                        <div class="project-view-utm-label-row">
+                          <label>utm_campaign</label>
+                          <span class="project-view-utm-field-help" id="project-view-utm-campaign-help" role="button" title="Подсказка">?</span>
+                        </div>
+                        <p class="project-view-utm-field-hint project-view-utm-field-hint--closed" id="project-view-utm-campaign-hint">Это название конкретной рекламной кампании, которое вы сами придумываете и добавляете в ссылку. Нужна для того, чтобы в аналитике сразу было видно, из какой именно кампании пришёл посетитель. <strong>Пример: utm_campaign=black_friday</strong> — значит, человек перешёл по ссылке из акции «Чёрная пятница».</p>
+                        <input type="text" id="project-view-utm-campaign" class="form-control" placeholder="{page_id}">
+                      </div>
+                      <div class="form-group">
+                        <div class="project-view-utm-label-row">
+                          <label>utm_content</label>
+                          <span class="project-view-utm-field-help" id="project-view-utm-content-help" role="button" title="Подсказка">?</span>
+                        </div>
+                        <p class="project-view-utm-field-hint project-view-utm-field-hint--closed" id="project-view-utm-content-hint">Уточняет, на какой именно элемент объявления нажал пользователь. Используется, когда в одной кампании несколько похожих ссылок и нужно понять, какая из них сработала лучше. <strong>Пример: utm_content=button_top</strong> — человек нажал на кнопку в верхней части страницы, а не на ссылку в тексте.</p>
+                        <input type="text" id="project-view-utm-content" class="form-control" placeholder="{post_num}">
+                      </div>
+                      <div class="form-group">
+                        <div class="project-view-utm-label-row">
+                          <label>utm_medium</label>
+                          <span class="project-view-utm-field-help" id="project-view-utm-medium-help" role="button" title="Подсказка">?</span>
+                        </div>
+                        <p class="project-view-utm-field-hint project-view-utm-field-hint--closed" id="project-view-utm-medium-hint">Указывает канал или способ, через который пришёл пользователь.</p>
+                        <ul class="project-view-utm-hint-list project-view-utm-hint-list-medium">
+                          <li><strong>utm_medium=cpc</strong> — платная реклама (клик по объявлению)</li>
+                          <li><strong>utm_medium=email</strong> — переход из email-рассылки</li>
+                          <li><strong>utm_medium=social</strong> — публикация в социальных сетях</li>
+                        </ul>
+                        <input type="text" id="project-view-utm-medium" class="form-control" placeholder="{page_name}">
+                      </div>
+                      <div class="form-group">
+                        <div class="project-view-utm-label-row">
+                          <label>utm_source</label>
+                          <span class="project-view-utm-field-help" id="project-view-utm-source-help" role="button" title="Подсказка">?</span>
+                        </div>
+                        <p class="project-view-utm-field-hint project-view-utm-field-hint--closed" id="project-view-utm-source-hint">Указывает конкретный источник, с которого пришёл пользователь.</p>
+                        <ul class="project-view-utm-hint-list project-view-utm-hint-list-source">
+                          <li><strong>utm_source=google</strong> — пришёл из Google</li>
+                          <li><strong>utm_source=vk</strong> — пришёл из ВКонтакте</li>
+                          <li><strong>utm_source=newsletter</strong> — пришёл из email-рассылки</li>
+                        </ul>
+                        <input type="text" id="project-view-utm-source" class="form-control" placeholder="{soc_net}">
+                      </div>
+                      <div class="form-group">
+                        <div class="project-view-utm-label-row">
+                          <label>utm_term</label>
+                          <span class="project-view-utm-field-help" id="project-view-utm-term-help" role="button" title="Подсказка">?</span>
+                        </div>
+                        <p class="project-view-utm-field-hint project-view-utm-field-hint--closed" id="project-view-utm-term-hint">Фиксирует ключевое слово, по которому было показано рекламное объявление. Используется в основном в контекстной рекламе, чтобы понять, какой именно поисковый запрос привёл пользователя. <strong>Пример: utm_term=купить+масло+моторное</strong> — пользователь увидел объявление, когда искал «купить масло моторное».</p>
+                        <input type="text" id="project-view-utm-term" class="form-control" placeholder="{post_datetime}">
+                      </div>
+                    </div>
+                    <div class="project-view-save-wrap">
+                      <button type="button" class="btn btn-primary btn-size-1 btn-full" id="project-view-utm-save">Сохранить</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="project-view-sidebar" id="project-view-sidebar">
               <div class="project-view-sidebar-title">Настройки проекта</div>
@@ -561,7 +631,7 @@ const PageProjects = (() => {
     }).catch(() => {});
 
     const utm = p.utm_template ? (typeof p.utm_template === 'string' ? JSON.parse(p.utm_template) : p.utm_template) : {};
-    const hasUtm = !!(utm.source || utm.medium || utm.campaign);
+    const hasUtm = !!(utm.enabled !== false && (utm.source || utm.medium || utm.campaign || utm.content || utm.term));
     setStatus('project-nav-status-utm', hasUtm ? 'добавлены' : 'не добавлены', hasUtm);
 
     if (p.templates_count !== undefined && p.templates_count > 0) {
@@ -587,6 +657,10 @@ const PageProjects = (() => {
     }
     if (sectionId === 'schedule' && currentProjectViewId) {
       loadProjectViewSchedules().then(() => renderProjectViewScheduleGrid());
+    }
+    if (sectionId === 'utm' && currentProjectViewId) {
+      const p = projects.find(x => x.id == currentProjectViewId);
+      if (p) fillProjectViewUtmForm(p);
     }
   }
 
@@ -730,6 +804,62 @@ const PageProjects = (() => {
         App.toast('Расписание очищено', 'success');
       } catch (e) {
         App.toast('Ошибка', 'error');
+      }
+    });
+  }
+
+  function initProjectViewUtm() {
+    const hintIds = [
+      'project-view-utm-campaign-hint',
+      'project-view-utm-content-hint',
+      'project-view-utm-medium-hint',
+      'project-view-utm-source-hint',
+      'project-view-utm-term-hint',
+    ];
+    const toggleHint = (helpId, hintId) => {
+      const h = document.getElementById(helpId);
+      const t = document.getElementById(hintId);
+      if (h && t) h.addEventListener('click', () => {
+        hintIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (id === hintId) {
+            el.classList.toggle('project-view-utm-field-hint--closed');
+          } else {
+            el.classList.add('project-view-utm-field-hint--closed');
+          }
+        });
+      });
+    };
+    toggleHint('project-view-utm-campaign-help', 'project-view-utm-campaign-hint');
+    toggleHint('project-view-utm-content-help', 'project-view-utm-content-hint');
+    toggleHint('project-view-utm-medium-help', 'project-view-utm-medium-hint');
+    toggleHint('project-view-utm-source-help', 'project-view-utm-source-hint');
+    toggleHint('project-view-utm-term-help', 'project-view-utm-term-hint');
+    const btn = document.getElementById('project-view-utm-save');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      if (!currentProjectViewId) return;
+      const enabledEl = document.getElementById('project-view-utm-enabled');
+      const get = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      const utm_template = {
+        enabled: enabledEl ? enabledEl.checked : true,
+        campaign: get('project-view-utm-campaign'),
+        content: get('project-view-utm-content'),
+        medium: get('project-view-utm-medium'),
+        source: get('project-view-utm-source'),
+        term: get('project-view-utm-term')
+      };
+      try {
+        await API.put('/projects/' + currentProjectViewId, { utm_template });
+        const p = projects.find(x => x.id == currentProjectViewId);
+        if (p) {
+          p.utm_template = utm_template;
+          updateProjectViewNavStatuses(p);
+        }
+        App.toast('UTM-метки сохранены', 'success');
+      } catch (e) {
+        App.toast(e.message || 'Ошибка', 'error');
       }
     });
   }
@@ -897,6 +1027,19 @@ const PageProjects = (() => {
     renderProjectViewTeamsList();
   }
 
+  function fillProjectViewUtmForm(p) {
+    if (!p) return;
+    const utm = p.utm_template ? (typeof p.utm_template === 'string' ? JSON.parse(p.utm_template) : p.utm_template) : {};
+    const enabledEl = document.getElementById('project-view-utm-enabled');
+    if (enabledEl) enabledEl.checked = utm.enabled !== false;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('project-view-utm-campaign', utm.campaign);
+    set('project-view-utm-content', utm.content);
+    set('project-view-utm-medium', utm.medium);
+    set('project-view-utm-source', utm.source);
+    set('project-view-utm-term', utm.term);
+  }
+
   function renderProjectViewTeamsList() {
     const listEl = document.getElementById('project-view-teams-list');
     const emptyField = document.getElementById('project-view-team-empty');
@@ -1043,6 +1186,7 @@ const PageProjects = (() => {
     }
     initProjectViewScheduleModal();
     initProjectViewScheduleClear();
+    initProjectViewUtm();
   }
 
 
