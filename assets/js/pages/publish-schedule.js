@@ -46,7 +46,7 @@ const PagePublishSchedule = (function () {
       <div class="page-header">
         <div>
           <h1 class="page-title">Расписание публикаций</h1>
-          <p class="page-subtitle">Время автоматической публикации постов по дням недели</p>
+          <p class="page-subtitle">Укажите время публикации постов проекта, которое будет проставляться по умолчанию. Это упростит и ускорит процесс создания материалов.</p>
         </div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:24px;">
@@ -71,14 +71,16 @@ const PagePublishSchedule = (function () {
             </button>
           </div>
           <div style="padding:24px;display:flex;gap:32px;">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
-              <div style="display:flex;gap:8px;">
+            <div class="ps-time-picker">
+              <div class="ps-time-col">
                 <button class="ps-time-btn" id="ps-h-up">▲</button>
-                <button class="ps-time-btn" id="ps-m-up">▲</button>
-              </div>
-              <div id="ps-time-display" class="ps-time-display">12 : 00</div>
-              <div style="display:flex;gap:8px;">
+                <span id="ps-time-hours" class="ps-time-part">12</span>
                 <button class="ps-time-btn" id="ps-h-down">▼</button>
+              </div>
+              <span class="ps-time-sep">:</span>
+              <div class="ps-time-col">
+                <button class="ps-time-btn" id="ps-m-up">▲</button>
+                <span id="ps-time-mins" class="ps-time-part">00</span>
                 <button class="ps-time-btn" id="ps-m-down">▼</button>
               </div>
             </div>
@@ -205,7 +207,10 @@ const PagePublishSchedule = (function () {
   function updateTimeDisplay() {
     const h = String(modalHours).padStart(2, '0');
     const m = String(modalMins).padStart(2, '0');
-    document.getElementById('ps-time-display').textContent = h + ' : ' + m;
+    const hoursEl = document.getElementById('ps-time-hours');
+    const minsEl = document.getElementById('ps-time-mins');
+    if (hoursEl) hoursEl.textContent = h;
+    if (minsEl) minsEl.textContent = m;
   }
 
   async function saveSlot() {

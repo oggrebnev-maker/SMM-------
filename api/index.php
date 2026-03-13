@@ -89,6 +89,7 @@ try {
         $method === "DELETE" && preg_match('#^/projects/(\d+)/logo$#', $uri, $m)  => (new ProjectController())->deleteLogo((int)$m[1]),
         $method === "GET"    && preg_match('#^/projects/(\d+)/channels$#', $uri, $m)          => (new ProjectChannelController())->getAll((int)$m[1]),
         $method === "POST"   && preg_match('#^/projects/(\d+)/channels$#', $uri, $m)          => (new ProjectChannelController())->create((int)$m[1]),
+        $method === "PATCH"  && preg_match('#^/projects/(\d+)/channels/(\d+)$#', $uri, $m)   => (new ProjectChannelController())->update((int)$m[1], (int)$m[2]),
         $method === "DELETE" && preg_match('#^/projects/(\d+)/channels/(\d+)$#', $uri, $m)   => (new ProjectChannelController())->delete((int)$m[1], (int)$m[2]),
         $method === "POST"   && preg_match('#^/projects/(\d+)/posts$#', $uri, $m)             => (new PostController())->create((int)$m[1]),
 

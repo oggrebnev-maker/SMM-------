@@ -66,6 +66,27 @@ class ProjectChannelController {
         Response::success([], 'Аккаунт подключён к проекту', 201);
     }
 
+    // PATCH /projects/{pid}/channels/{id}
+    public function update(int $pid, int $id): void {
+        $user = AuthMiddleware::handle();
+        $this->checkAccess($pid, $user['id']);
+
+        $body = json_decode(file_get_contents('php://input'), true) ?? [];
+        $isActive = isset($body['is_active']) ? (int)(bool)$body['is_active'] : null;
+        if ($isActive === null) {
+            Response::error('is_active обязателен', 422);
+            return;
+        }
+
+        $stmt = $this->db->prepare("UPDATE social_channels SET is_active = :active WHERE id = :id AND project_id = :pid");
+        $stmt->execute([':active' => $isActive, ':id' => $id, ':pid' => $pid]);
+        if ($stmt->rowCount() === 0) {
+            Response::notFound('Канал не найден');
+            return;
+        }
+        Response::success([], 'Обновлено');
+    }
+
     // DELETE /projects/{pid}/channels/{id}
     public function delete(int $pid, int $id): void {
         $user = AuthMiddleware::handle();
