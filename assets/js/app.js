@@ -149,6 +149,20 @@ const App = (() => {
       if (user.role === 'admin') adminItem.classList.remove('hidden');
       else adminItem.classList.add('hidden');
     }
+
+    const mobAv = document.getElementById('mob-av');
+    const mobName = document.getElementById('mob-uname');
+    const mobRole = document.getElementById('mob-urole');
+    if (mobAv) {
+      if (user.avatar) {
+        mobAv.innerHTML = `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+      } else {
+        mobAv.textContent = (user.name || user.email || '?')[0].toUpperCase();
+      }
+    }
+    if (mobName) mobName.textContent = user.name || '—';
+    if (mobRole) mobRole.textContent = user.role === 'admin' ? 'Администратор'
+      : user.role === 'editor' ? 'Редактор' : 'Автор';
   }
 
   function updateSidebarProject(project) {
@@ -159,9 +173,24 @@ const App = (() => {
     if (nameEl) nameEl.textContent = name;
     if (dotEl) dotEl.style.background = dotColor;
     const mobName = document.getElementById('mob-project-name');
-    const mobDot = document.getElementById('mob-project-dot');
-    if (mobName) mobName.textContent = name;
-    if (mobDot) mobDot.style.background = dotColor;
+    const mobIcon = document.getElementById('mob-project-icon');
+    if (mobName) {
+      const w = window.innerWidth;
+      let shortName = name;
+      if (w <= 370 && name.length > 10) {
+        shortName = name.slice(0, 10) + '…';
+      } else if (w <= 400 && name.length > 15) {
+        shortName = name.slice(0, 15) + '…';
+      }
+      mobName.textContent = shortName;
+    }
+    if (mobIcon) {
+      if (project && project.logo) {
+        mobIcon.innerHTML = `<img src="${project.logo}" alt="">`;
+      } else {
+        mobIcon.innerHTML = `<span class="mob-topbar-project-icon-dot" style="background:${dotColor};"></span>`;
+      }
+    }
   }
 
   function setActiveNav(path) {
@@ -266,6 +295,46 @@ const App = (() => {
           if (h) h.setAttribute('aria-expanded', 'true');
         }
       });
+    });
+  }
+
+  // ─── Mobile drawer ─────────────────────────────────────────────────
+
+  function initMobileDrawer() {
+    const burger = document.getElementById('mob-burger-btn');
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('mob-drawer-overlay');
+    if (!burger || !drawer) return;
+
+    const openDrawer = () => {
+      if (typeof window.syncUserToDrawer === 'function') {
+        window.syncUserToDrawer();
+      }
+      if (window.State && State.get) {
+        const proj = State.get('project');
+        const mn = document.getElementById('mob-project-name');
+        const md = document.getElementById('mob-project-dot');
+        if (mn) mn.textContent = proj ? proj.name : 'Не выбран';
+        if (md) md.style.background = proj ? (proj.color || '#6366f1') : '#374151';
+      }
+      drawer.classList.add('open');
+    };
+
+    const closeDrawer = () => drawer.classList.remove('open');
+
+    burger.addEventListener('click', () => {
+      if (window.innerWidth <= 639) {
+        openDrawer();
+      } else {
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        if (sidebarToggle) sidebarToggle.click();
+      }
+    });
+
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+
+    drawer.querySelectorAll('a, button').forEach(link => {
+      link.addEventListener('click', closeDrawer);
     });
   }
 
@@ -480,6 +549,13 @@ const App = (() => {
     State.on('user',    updateSidebarUser);
     State.on('project', updateSidebarProject);
 
+    window.addEventListener('resize', () => {
+      try {
+        const proj = State.get('project');
+        if (proj) updateSidebarProject(proj);
+      } catch (e) {}
+    });
+
     window.addEventListener('hashchange', async () => {
       const route  = getRoute();
       const params = getQueryParams();
@@ -530,6 +606,7 @@ const App = (() => {
     initVerifyScreen();
     initVKLoginBtn();
     initAccordion();
+    initMobileDrawer();
     initSidebarToggle();
 
     const route  = getRoute();

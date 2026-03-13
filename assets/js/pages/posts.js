@@ -157,6 +157,10 @@ const PagePosts = (() => {
                 <span>${p.name}</span>
               </button>
             `).join('') : '<div class="posts-topbar-dropdown-empty">Нет проектов</div>'}
+            <button type="button" class="btn btn-primary btn-sm posts-topbar-dropdown-add" data-action="create-project">
+              <span class="posts-topbar-dropdown-add-plus">+</span>
+              <span>Создать проект</span>
+            </button>
           </div>
         </div>
       </div>
@@ -305,8 +309,8 @@ const PagePosts = (() => {
                       <span class="form-field-error hidden" id="posts-add-button-url-error">Это обязательное поле</span>
                     </div>
                     <div class="posts-modal-footer posts-add-button-modal-footer">
-                      <button type="button" class="btn btn-ghost" id="posts-add-button-cancel">Отмена</button>
-                      <button type="button" class="btn btn-blue" id="posts-add-button-save">Сохранить</button>
+                      <button type="button" class="btn btn-secondary" id="posts-add-button-cancel">Отмена</button>
+                      <button type="button" class="btn btn-primary" id="posts-add-button-save">Сохранить</button>
                     </div>
                   </div>
                 </div>
@@ -326,8 +330,8 @@ const PagePosts = (() => {
                 </div>
                 <div id="posts-form-error" class="form-error hidden"></div>
                 <div class="posts-modal-footer">
-                  <button type="button" class="btn btn-ghost" id="posts-modal-cancel">Отмена</button>
-                  <button type="submit" class="btn btn-blue" id="posts-form-submit">Создать пост</button>
+                  <button type="button" class="btn btn-secondary" id="posts-modal-cancel">Отмена</button>
+                  <button type="submit" class="btn btn-primary" id="posts-form-submit">Создать пост</button>
                 </div>
               </form>
               </div>
@@ -374,7 +378,7 @@ const PagePosts = (() => {
       projectBtn.addEventListener('click', () => {
         projectPanel.classList.toggle('hidden');
       });
-      document.querySelectorAll('.posts-topbar-dropdown-item').forEach(btn => {
+      projectPanel.querySelectorAll('.posts-topbar-dropdown-item').forEach(btn => {
         btn.addEventListener('click', () => {
           const id = btn.dataset.id;
           const p = projects.find(pr => pr.id == id);
@@ -383,6 +387,13 @@ const PagePosts = (() => {
           render();
         });
       });
+      const addBtn = projectPanel.querySelector('.posts-topbar-dropdown-add');
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          projectPanel.classList.add('hidden');
+          App.navigate('/projects/create');
+        });
+      }
     }
 
 

@@ -36,7 +36,7 @@ const PageSocialAccounts = (() => {
           <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:24px;">
             <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
               <div class="page-title">Аккаунты</div>
-              <button class="btn btn-blue btn-sm sa-mob-only-btn" id="sa-mob-connect-btn" style="gap:6px;">
+              <button class="btn btn-primary btn-sm sa-mob-only-btn" id="sa-mob-connect-btn" style="gap:6px;">
                 <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 Подключить
               </button>
@@ -114,9 +114,9 @@ const PageSocialAccounts = (() => {
 
             <div id="sa-f-error" class="form-error hidden"></div>
 
-            <div class="modal-footer" style="justify-content:stretch;">
-              <button type="submit" class="btn btn-blue btn-full" id="sa-f-save-btn">Подключить аккаунт</button>
-            </div>
+          <div class="modal-footer" style="justify-content:stretch;">
+            <button type="submit" class="btn btn-primary btn-full" id="sa-f-save-btn">Подключить аккаунт</button>
+          </div>
           </form>
         </div>
       </div>

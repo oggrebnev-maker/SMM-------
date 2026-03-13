@@ -40,6 +40,10 @@ const PageDashboard = (() => {
                 <span>${p.name}</span>
               </button>
             `).join('') : '<div class="posts-topbar-dropdown-empty">Нет проектов</div>'}
+            <button type="button" class="btn btn-primary btn-sm posts-topbar-dropdown-add" data-action="create-project">
+              <span class="posts-topbar-dropdown-add-plus">+</span>
+              <span>Создать проект</span>
+            </button>
           </div>
         </div>
       </div>
@@ -109,6 +113,13 @@ const PageDashboard = (() => {
           render();
         });
       });
+      const addBtn = projectPanel.querySelector('.posts-topbar-dropdown-add');
+      if (addBtn) {
+        addBtn.addEventListener('click', () => {
+          projectPanel.classList.add('hidden');
+          App.navigate('/projects/create');
+        });
+      }
       document.addEventListener('click', (e) => {
         if (!projectBtn.contains(e.target) && !projectPanel.contains(e.target)) projectPanel.classList.add('hidden');
       });

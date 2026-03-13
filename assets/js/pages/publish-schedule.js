@@ -98,7 +98,7 @@ const PagePublishSchedule = (function () {
             </div>
           </div>
           <div style="padding:0 24px 24px;">
-            <button class="btn btn-blue btn-full" id="ps-modal-save">Добавить в расписание</button>
+            <button class="btn btn-primary btn-full" id="ps-modal-save">Добавить в расписание</button>
           </div>
         </div>
       </div>`;

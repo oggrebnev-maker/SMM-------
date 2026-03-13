@@ -42,7 +42,7 @@ const PageProfile = (() => {
               <label>Телефон</label>
               <input type="tel" id="profile-phone" placeholder="+7 (999) 000-00-00">
             </div>
-            <button class="btn btn-blue" id="profile-save-btn">
+            <button class="btn btn-primary" id="profile-save-btn">
               <span class="btn-text">Сохранить</span>
               <span class="btn-loader hidden">⟳</span>
             </button>
@@ -102,7 +102,7 @@ const PageProfile = (() => {
               <label>Повторите новый пароль</label>
               <input type="password" id="confirm-password" placeholder="••••••••">
             </div>
-            <button class="btn btn-blue" id="password-save-btn">
+            <button class="btn btn-primary" id="password-save-btn">
               <span class="btn-text">Изменить пароль</span>
               <span class="btn-loader hidden">⟳</span>
             </button>

@@ -71,8 +71,8 @@ const PageSystemSettings = (() => {
     return `
       <div class="profile-card" style="overflow:visible;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-          <div class="profile-card-title" style="margin-bottom:0;">Доступные соцсети</div>
-          <button class="btn btn-blue btn-sm" id="ss-platform-add-btn">+ Добавить</button>
+        <div class="profile-card-title" style="margin-bottom:0;">Доступные соцсети</div>
+        <button class="btn btn-primary btn-sm" id="ss-platform-add-btn">+ Добавить</button>
         </div>
         <div id="ss-platforms-list"><div class="loading-state">Загрузка...</div></div>
       </div>
@@ -423,7 +423,7 @@ const PageSystemSettings = (() => {
             </label>
           </div>
           <div>
-            <button class="btn btn-blue btn-sm" id="ss-reg-save-btn">Сохранить</button>
+            <button class="btn btn-primary btn-sm" id="ss-reg-save-btn">Сохранить</button>
           </div>
         </div>
       </div>
@@ -436,7 +436,7 @@ const PageSystemSettings = (() => {
             <input type="text" id="ss-site-name" value="${settings.site_name || ''}">
           </div>
           <div>
-            <button class="btn btn-blue btn-sm" id="ss-save-btn">Сохранить</button>
+            <button class="btn btn-primary btn-sm" id="ss-save-btn">Сохранить</button>
           </div>
         </div>
       </div>
@@ -493,7 +493,7 @@ const PageSystemSettings = (() => {
             </div>
           </div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <button class="btn btn-blue btn-sm" id="ss-mail-save-btn">Сохранить</button>
+            <button class="btn btn-primary btn-sm" id="ss-mail-save-btn">Сохранить</button>
             <input type="text" id="ss-test-email-to" placeholder="Тестовый адрес" style="border:1px solid var(--border);border-radius:5px;padding:7px 12px;font-size:13px;background:var(--bg);color:var(--text);font-family:inherit;width:220px;">
             <button class="btn btn-ghost btn-sm" id="ss-test-email-btn">Отправить тест</button>
           </div>
@@ -512,7 +512,7 @@ const PageSystemSettings = (() => {
             <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Переменные: {name} — имя, {link} — ссылка подтверждения</div>
             <textarea id="ss-verify-template" rows="6" style="width:100%;border:1px solid var(--border);border-radius:5px;padding:10px 12px;font-size:13px;background:var(--bg);color:var(--text);font-family:inherit;resize:vertical;">${settings.email_verify_template || ''}</textarea>
           </div>
-          <button class="btn btn-blue btn-sm" id="ss-mail-template-save-btn">Сохранить шаблон</button>
+          <button class="btn btn-primary btn-sm" id="ss-mail-template-save-btn">Сохранить шаблон</button>
         </div>
       </div>
     `;

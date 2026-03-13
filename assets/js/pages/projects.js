@@ -64,8 +64,8 @@ const PageProjects = (() => {
           <div id="proj-utm-error" class="form-error hidden"></div>
         </div>
         <div style="padding:0 24px 24px;display:flex;gap:10px;">
-          <button class="btn btn-ghost" id="proj-utm-cancel" style="flex:1;">Отмена</button>
-          <button class="btn btn-blue" id="proj-utm-save" style="flex:2;">Сохранить</button>
+          <button class="btn btn-secondary" id="proj-utm-cancel" style="flex:1;">Отмена</button>
+          <button class="btn btn-primary" id="proj-utm-save" style="flex:2;">Сохранить</button>
         </div>
       </div>
       <div id="proj-settings-panel" style="position:fixed;top:0;right:0;width:380px;max-width:100vw;height:100vh;background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 32px rgba(51,63,100,0.12);z-index:900;display:none;flex-direction:column;">
@@ -143,7 +143,7 @@ const PageProjects = (() => {
           </div>
 
           <div id="proj-panel-error" class="form-error hidden"></div>
-          <button class="btn btn-blue" id="proj-panel-save" style="width:100%;margin-bottom:24px;">Сохранить</button>
+          <button class="btn btn-primary" id="proj-panel-save" style="width:100%;margin-bottom:24px;">Сохранить</button>
           <button id="proj-panel-cancel" style="display:none;"></button>
 
           <!-- Подключённые аккаунты (скрытые, нужны для загрузки бейджей) -->
@@ -527,7 +527,7 @@ const PageProjects = (() => {
       </div>
       <div style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:20px;">
         <p style="font-size:13px;color:var(--text2);line-height:1.6;">После подключения аккаунта все каналы и группы, где у вас есть права на публикацию, станут доступны при планировании постов в этом проекте.</p>
-        <a href="#/social-accounts" class="btn btn-blue btn-sm" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;text-decoration:none;padding:12px 20px;" onclick="document.getElementById('proj-add-channel-panel').style.display='none';document.getElementById('proj-settings-overlay').style.display='none';document.getElementById('proj-settings-panel').style.display='none';">
+        <a href="#/social-accounts" class="btn btn-primary btn-sm" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;text-decoration:none;padding:12px 20px;" onclick="document.getElementById('proj-add-channel-panel').style.display='none';document.getElementById('proj-settings-overlay').style.display='none';document.getElementById('proj-settings-panel').style.display='none';">
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           Подключить новый аккаунт
         </a>
@@ -548,8 +548,8 @@ const PageProjects = (() => {
         </div>
       </div>
       <div style="padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;">
-        <button class="btn btn-blue" id="proj-add-ch-save" style="flex:2;">Сохранить</button>
-        <button class="btn btn-ghost" id="proj-add-ch-cancel" style="flex:1;">Отмена</button>
+        <button class="btn btn-primary" id="proj-add-ch-save" style="flex:2;">Сохранить</button>
+        <button class="btn btn-secondary" id="proj-add-ch-cancel" style="flex:1;">Отмена</button>
       </div>
     `;
 
