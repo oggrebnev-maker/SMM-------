@@ -326,8 +326,198 @@ const PageProjects = (() => {
                 </div>
               </div>
               <div id="project-view-section-watermark" class="project-view-section hidden" data-section="watermark"><p class="project-view-placeholder">Вотермарк</p></div>
-              <div id="project-view-section-templates" class="project-view-section hidden" data-section="templates"><p class="project-view-placeholder">Шаблоны</p></div>
-              <div id="project-view-section-hashtags" class="project-view-section hidden" data-section="hashtags"><p class="project-view-placeholder">Хэштеги</p></div>
+              <div id="project-view-section-templates" class="project-view-section hidden" data-section="templates">
+                <div class="project-view-section-inner">
+                  <div class="project-view-card">
+                    <h2 class="project-view-section-title">Шаблоны</h2>
+                    <p class="project-view-section-desc">Настройте хэштеги для текста поста и для комментариев. Вводите без символа #, через запятую или с новой строки.</p>
+                    <div class="project-view-hashtags-tabs">
+                      <button type="button" class="btn-instr project-view-hashtags-tab active" data-tab="post"><svg class="project-view-hashtags-tab-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg><span>Хэштеги поста</span></button>
+                      <button type="button" class="btn-instr project-view-hashtags-tab" data-tab="comment"><svg class="project-view-hashtags-tab-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Хэштеги комментариев</span></button>
+                      <button type="button" class="btn-instr project-view-hashtags-tab" data-tab="signature"><svg class="project-view-hashtags-tab-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 15L13 18l5-5z"/><path d="M2 2l7.5 1.5L13 18l-3 3-7-7 1.5-7.5z"/></svg><span>Подпись</span></button>
+                    </div>
+                    <div id="project-view-hashtags-panel-post" class="project-view-hashtags-panel">
+                      <div id="project-view-hashtags-post-add" class="project-view-hashtags-add-block">
+                        <div class="form-group">
+                          <label>Хэштеги (через запятую или с новой строки, без #)</label>
+                          <textarea id="project-view-hashtags-text-post" class="form-control" rows="4" placeholder="smm, smm_маркетинг, smmmarketing, smm-marketing, продвижениебизнеса..."></textarea>
+                        </div>
+                        <div class="form-group project-view-hashtags-max-row">
+                          <label>Максимальное количество хэштегов</label>
+                          <div class="project-view-hashtags-number">
+                            <button type="button" class="project-view-hashtags-num-btn" data-tab="post" data-dir="-">−</button>
+                            <input type="number" id="project-view-hashtags-max-post" class="form-control project-view-hashtags-max-input" min="0" max="100" value="5">
+                            <button type="button" class="project-view-hashtags-num-btn" data-tab="post" data-dir="+">+</button>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label>Правила размещения хэштегов в постах</label>
+                          <select id="project-view-hashtags-placement-post" class="form-control">
+                            <option value="new_line">На новой строке</option>
+                            <option value="every_other_line">Через строку</option>
+                            <option value="same_line">На той же строке</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Порядок добавления в пост</label>
+                          <div class="project-view-hashtags-mode-row">
+                            <label class="project-view-hashtags-mode-option">
+                              <input type="radio" name="project-view-hashtags-mode-post" value="strict" checked>
+                              <span>Строгий</span>
+                            </label>
+                            <label class="project-view-hashtags-mode-option">
+                              <input type="radio" name="project-view-hashtags-mode-post" value="random">
+                              <span>Случайный</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div id="project-view-hashtags-post-view" class="project-view-hashtags-view-block hidden">
+                        <p class="project-view-hashtags-list-caption">Добавленные хэштеги</p>
+                        <div id="project-view-hashtags-post-list" class="project-view-hashtags-tag-list"></div>
+                        <div id="project-view-hashtags-post-edit-block" class="project-view-hashtags-edit-block">
+                          <div class="form-group">
+                            <label>Хэштеги (через запятую или с новой строки, без #)</label>
+                            <textarea id="project-view-hashtags-edit-text-post" class="form-control" rows="4" placeholder="smm, smm_маркетинг..."></textarea>
+                          </div>
+                          <div class="form-group project-view-hashtags-max-row">
+                            <label>Максимальное количество хэштегов</label>
+                            <div class="project-view-hashtags-number">
+                              <button type="button" class="project-view-hashtags-num-btn" data-edit-tab="post" data-dir="-">−</button>
+                              <input type="number" id="project-view-hashtags-edit-max-post" class="form-control project-view-hashtags-max-input" min="0" max="100" value="5">
+                              <button type="button" class="project-view-hashtags-num-btn" data-edit-tab="post" data-dir="+">+</button>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label>Правила размещения хэштегов в постах</label>
+                            <select id="project-view-hashtags-edit-placement-post" class="form-control">
+                              <option value="new_line">На новой строке</option>
+                              <option value="every_other_line">Через строку</option>
+                              <option value="same_line">На той же строке</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label>Порядок добавления в пост</label>
+                            <div class="project-view-hashtags-mode-row">
+                              <label class="project-view-hashtags-mode-option">
+                                <input type="radio" name="project-view-hashtags-edit-mode-post" value="strict" checked>
+                                <span>Строгий</span>
+                              </label>
+                              <label class="project-view-hashtags-mode-option">
+                                <input type="radio" name="project-view-hashtags-edit-mode-post" value="random">
+                                <span>Случайный</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div id="project-view-hashtags-panel-comment" class="project-view-hashtags-panel hidden">
+                      <div id="project-view-hashtags-comment-add" class="project-view-hashtags-add-block">
+                        <div class="form-group">
+                          <label>Хэштеги (через запятую или с новой строки, без #)</label>
+                          <textarea id="project-view-hashtags-text-comment" class="form-control" rows="4" placeholder="smm, smm_маркетинг, smmmarketing, smm-marketing, продвижениебизнеса..."></textarea>
+                        </div>
+                        <div class="form-group project-view-hashtags-max-row">
+                          <label>Максимальное количество хэштегов</label>
+                          <div class="project-view-hashtags-number">
+                            <button type="button" class="project-view-hashtags-num-btn" data-tab="comment" data-dir="-">−</button>
+                            <input type="number" id="project-view-hashtags-max-comment" class="form-control project-view-hashtags-max-input" min="0" max="100" value="5">
+                            <button type="button" class="project-view-hashtags-num-btn" data-tab="comment" data-dir="+">+</button>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label>Правила размещения хэштегов в комментариях</label>
+                          <select id="project-view-hashtags-placement-comment" class="form-control">
+                            <option value="new_line">На новой строке</option>
+                            <option value="every_other_line">Через строку</option>
+                            <option value="same_line">На той же строке</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Порядок добавления в комментарий</label>
+                          <div class="project-view-hashtags-mode-row">
+                            <label class="project-view-hashtags-mode-option">
+                              <input type="radio" name="project-view-hashtags-mode-comment" value="strict" checked>
+                              <span>Строгий</span>
+                            </label>
+                            <label class="project-view-hashtags-mode-option">
+                              <input type="radio" name="project-view-hashtags-mode-comment" value="random">
+                              <span>Случайный</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div id="project-view-hashtags-comment-view" class="project-view-hashtags-view-block hidden">
+                        <p class="project-view-hashtags-list-caption">Добавленные хэштеги</p>
+                        <div id="project-view-hashtags-comment-list" class="project-view-hashtags-tag-list"></div>
+                        <div id="project-view-hashtags-comment-edit-block" class="project-view-hashtags-edit-block">
+                          <div class="form-group">
+                            <label>Хэштеги (через запятую или с новой строки, без #)</label>
+                            <textarea id="project-view-hashtags-edit-text-comment" class="form-control" rows="4" placeholder="smm, smm_маркетинг..."></textarea>
+                          </div>
+                          <div class="form-group project-view-hashtags-max-row">
+                            <label>Максимальное количество хэштегов</label>
+                            <div class="project-view-hashtags-number">
+                              <button type="button" class="project-view-hashtags-num-btn" data-edit-tab="comment" data-dir="-">−</button>
+                              <input type="number" id="project-view-hashtags-edit-max-comment" class="form-control project-view-hashtags-max-input" min="0" max="100" value="5">
+                              <button type="button" class="project-view-hashtags-num-btn" data-edit-tab="comment" data-dir="+">+</button>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label>Правила размещения хэштегов в комментариях</label>
+                            <select id="project-view-hashtags-edit-placement-comment" class="form-control">
+                              <option value="new_line">На новой строке</option>
+                              <option value="every_other_line">Через строку</option>
+                              <option value="same_line">На той же строке</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label>Порядок добавления в комментарий</label>
+                            <div class="project-view-hashtags-mode-row">
+                              <label class="project-view-hashtags-mode-option">
+                                <input type="radio" name="project-view-hashtags-edit-mode-comment" value="strict" checked>
+                                <span>Строгий</span>
+                              </label>
+                              <label class="project-view-hashtags-mode-option">
+                                <input type="radio" name="project-view-hashtags-edit-mode-comment" value="random">
+                                <span>Случайный</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div id="project-view-hashtags-panel-signature" class="project-view-hashtags-panel hidden">
+                      <div id="project-view-signature-view" class="project-view-hashtags-view-block hidden">
+                        <p class="project-view-hashtags-list-caption">Текущая подпись</p>
+                        <div id="project-view-signature-display" class="project-view-signature-display"></div>
+                      </div>
+                      <div id="project-view-signature-add" class="project-view-hashtags-add-block">
+                        <div class="form-group">
+                          <label>Название</label>
+                          <input type="text" id="project-view-signature-name" class="form-control" placeholder="Название">
+                        </div>
+                        <div class="form-group">
+                          <label>Как использовать эту подпись?</label>
+                          <select id="project-view-signature-usage" class="form-control">
+                            <option value="manual">Использовать эту подпись вручную</option>
+                            <option value="post_end">В конце каждого поста</option>
+                            <option value="comment_end">В конце каждого комментария</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Подпись</label>
+                          <input type="text" id="project-view-signature-text" class="form-control" placeholder="Подпись">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="project-view-save-wrap">
+                      <button type="button" class="btn btn-primary btn-size-1 btn-full" id="project-view-hashtags-config-save">Сохранить</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div id="project-view-section-utm" class="project-view-section hidden" data-section="utm">
                 <div class="project-view-section-inner">
                   <div class="project-view-card">
@@ -422,10 +612,6 @@ const PageProjects = (() => {
                 <button type="button" class="project-settings-nav-btn" data-section="templates" id="project-nav-templates">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
                   <span>Шаблоны</span><span class="project-settings-nav-status" id="project-nav-status-templates">не добавлены</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg>
-                </button>
-                <button type="button" class="project-settings-nav-btn" data-section="hashtags" id="project-nav-hashtags">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3L8 21"/><path d="M16 3l-2 18"/></svg>
-                  <span>Хэштеги</span><span class="project-settings-nav-status" id="project-nav-status-hashtags">не добавлены</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg>
                 </button>
                 <button type="button" class="project-settings-nav-btn" data-section="watermark" id="project-nav-watermark">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.001 15.085A1.5 1.5 0 0 1 9 16.5"/><circle cx="18.5" cy="8.5" r="3.5"/><circle cx="7.5" cy="16.5" r="5.5"/><circle cx="7.5" cy="4.5" r="2.5"/></svg>
@@ -617,7 +803,6 @@ const PageProjects = (() => {
     setStatus('project-nav-status-schedule', 'не настроено', false);
     setStatus('project-nav-status-utm', 'не добавлены', false);
     setStatus('project-nav-status-templates', 'не добавлены', false);
-    setStatus('project-nav-status-hashtags', 'не добавлены', false);
     setStatus('project-nav-status-watermark', 'не добавлен', false);
 
     API.get('/projects/' + p.id + '/channels').then(res => {
@@ -634,11 +819,8 @@ const PageProjects = (() => {
     const hasUtm = !!(utm.enabled !== false && (utm.source || utm.medium || utm.campaign || utm.content || utm.term));
     setStatus('project-nav-status-utm', hasUtm ? 'добавлены' : 'не добавлены', hasUtm);
 
-    if (p.templates_count !== undefined && p.templates_count > 0) {
+    if ((p.templates_count !== undefined && p.templates_count > 0) || (p.hashtags_count !== undefined && p.hashtags_count > 0)) {
       setStatus('project-nav-status-templates', 'добавлены', true);
-    }
-    if (p.hashtags_count !== undefined && p.hashtags_count > 0) {
-      setStatus('project-nav-status-hashtags', 'добавлены', true);
     }
     if (p.watermark_added) {
       setStatus('project-nav-status-watermark', 'добавлен', true);
@@ -661,6 +843,9 @@ const PageProjects = (() => {
     if (sectionId === 'utm' && currentProjectViewId) {
       const p = projects.find(x => x.id == currentProjectViewId);
       if (p) fillProjectViewUtmForm(p);
+    }
+    if (sectionId === 'templates' && currentProjectViewId) {
+      loadProjectViewHashtagsConfig();
     }
   }
 
@@ -862,6 +1047,442 @@ const PageProjects = (() => {
         App.toast(e.message || 'Ошибка', 'error');
       }
     });
+  }
+
+  let projectViewHashtagsConfig = null;
+
+  async function loadProjectViewHashtagsConfig() {
+    if (!currentProjectViewId) return;
+    try {
+      const res = await API.get('/projects/' + currentProjectViewId + '/hashtags/config');
+      projectViewHashtagsConfig = (res.data && (res.data.post || res.data.comment)) ? res.data : { post: { hashtags: '', max_count: 5, placement: 'new_line', mode: 'strict' }, comment: { hashtags: '', max_count: 5, placement: 'new_line', mode: 'strict' } };
+    } catch (e) {
+      projectViewHashtagsConfig = { post: { hashtags: '', max_count: 5, placement: 'new_line', mode: 'strict' }, comment: { hashtags: '', max_count: 5, placement: 'new_line', mode: 'strict' } };
+    }
+    fillProjectViewHashtagsConfigForm();
+    loadProjectViewSignature();
+  }
+
+  let projectViewSignature = null;
+  async function loadProjectViewSignature() {
+    if (!currentProjectViewId) return;
+    try {
+      const res = await API.get('/projects/' + currentProjectViewId + '/signature');
+      projectViewSignature = res.data || { name: '', usage: 'manual', text: '' };
+    } catch (e) {
+      projectViewSignature = { name: '', usage: 'manual', text: '' };
+    }
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    set('project-view-signature-name', projectViewSignature.name || '');
+    set('project-view-signature-usage', projectViewSignature.usage || 'manual');
+    set('project-view-signature-text', projectViewSignature.text || '');
+    updateProjectViewSignaturePanel();
+  }
+
+  var signatureUsageLabels = { manual: 'Использовать эту подпись вручную', post_end: 'В конце каждого поста', comment_end: 'В конце каждого комментария' };
+
+  function updateProjectViewSignaturePanel() {
+    var viewBlock = document.getElementById('project-view-signature-view');
+    var addBlock = document.getElementById('project-view-signature-add');
+    var displayEl = document.getElementById('project-view-signature-display');
+    if (!viewBlock || !addBlock || !displayEl) return;
+    var s = projectViewSignature || {};
+    var hasSignature = !!(s.name || s.text);
+    if (!hasSignature) {
+      addBlock.classList.remove('hidden');
+      viewBlock.classList.add('hidden');
+      return;
+    }
+    addBlock.classList.add('hidden');
+    viewBlock.classList.remove('hidden');
+    var parts = [];
+    if (s.name) parts.push('<div class="project-view-signature-row"><span class="project-view-signature-label">Название</span><span class="project-view-signature-value">' + (s.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</span></div>');
+    parts.push('<div class="project-view-signature-row"><span class="project-view-signature-label">Использование</span><span class="project-view-signature-value">' + (signatureUsageLabels[s.usage] || s.usage || '—') + '</span></div>');
+    if (s.text) parts.push('<div class="project-view-signature-row"><span class="project-view-signature-label">Подпись</span><span class="project-view-signature-value">' + (s.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</span></div>');
+    displayEl.innerHTML = parts.length ? parts.join('') : '<div class="project-view-signature-value">—</div>';
+  }
+
+  function fillProjectViewHashtagsConfigForm() {
+    const c = projectViewHashtagsConfig || {};
+    const post = c.post || {};
+    const comment = c.comment || {};
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    const setRadio = (name, val) => { const el = document.querySelector('input[name="' + name + '"][value="' + (val || 'strict') + '"]'); if (el) el.checked = true; };
+    set('project-view-hashtags-text-post', post.hashtags || '');
+    set('project-view-hashtags-max-post', post.max_count ?? 5);
+    set('project-view-hashtags-placement-post', post.placement || 'new_line');
+    setRadio('project-view-hashtags-mode-post', post.mode || 'strict');
+    set('project-view-hashtags-edit-text-post', post.hashtags || '');
+    set('project-view-hashtags-edit-max-post', post.max_count ?? 5);
+    set('project-view-hashtags-edit-placement-post', post.placement || 'new_line');
+    setRadio('project-view-hashtags-edit-mode-post', post.mode || 'strict');
+    set('project-view-hashtags-text-comment', comment.hashtags || '');
+    set('project-view-hashtags-max-comment', comment.max_count ?? 5);
+    set('project-view-hashtags-placement-comment', comment.placement || 'new_line');
+    setRadio('project-view-hashtags-mode-comment', comment.mode || 'strict');
+    set('project-view-hashtags-edit-text-comment', comment.hashtags || '');
+    set('project-view-hashtags-edit-max-comment', comment.max_count ?? 5);
+    set('project-view-hashtags-edit-placement-comment', comment.placement || 'new_line');
+    setRadio('project-view-hashtags-edit-mode-comment', comment.mode || 'strict');
+    document.querySelectorAll('.project-view-hashtags-max-input').forEach(updateHashtagsMaxInputWidth);
+    updateProjectViewHashtagsPostPanel();
+    updateProjectViewHashtagsCommentPanel();
+    updateHashtagsMainButton();
+  }
+
+  function updateHashtagsMainButton() {
+    const saveBtn = document.getElementById('project-view-hashtags-config-save');
+    if (!saveBtn) return;
+    const postPanel = document.getElementById('project-view-hashtags-panel-post');
+    const postViewBlock = document.getElementById('project-view-hashtags-post-view');
+    const postEditBlock = document.getElementById('project-view-hashtags-post-edit-block');
+    const commentPanel = document.getElementById('project-view-hashtags-panel-comment');
+    const commentViewBlock = document.getElementById('project-view-hashtags-comment-view');
+    const commentEditBlock = document.getElementById('project-view-hashtags-comment-edit-block');
+    const isPostTab = postPanel && !postPanel.classList.contains('hidden');
+    const postHasTags = postViewBlock && !postViewBlock.classList.contains('hidden');
+    const postEditOpen = postEditBlock && postEditBlock.classList.contains('project-view-hashtags-edit-block-open');
+    const isCommentTab = commentPanel && !commentPanel.classList.contains('hidden');
+    const commentHasTags = commentViewBlock && !commentViewBlock.classList.contains('hidden');
+    const commentEditOpen = commentEditBlock && commentEditBlock.classList.contains('project-view-hashtags-edit-block-open');
+    const signaturePanel = document.getElementById('project-view-hashtags-panel-signature');
+    const signatureViewBlock = document.getElementById('project-view-signature-view');
+    const signatureAddBlock = document.getElementById('project-view-signature-add');
+    const isSignatureTab = signaturePanel && !signaturePanel.classList.contains('hidden');
+    const signatureViewVisible = signatureViewBlock && !signatureViewBlock.classList.contains('hidden');
+    if ((isPostTab && postHasTags && !postEditOpen) || (isCommentTab && commentHasTags && !commentEditOpen) || (isSignatureTab && signatureViewVisible)) {
+      saveBtn.textContent = 'Редактировать';
+    } else {
+      saveBtn.textContent = 'Сохранить';
+    }
+  }
+
+  function parseHashtagsString(s) {
+    if (!s || typeof s !== 'string') return [];
+    return s.replace(/#/g, '').split(/[\s,]+/).map(function (t) { return t.trim(); }).filter(Boolean);
+  }
+
+  function updateProjectViewHashtagsPostPanel() {
+    const addBlock = document.getElementById('project-view-hashtags-post-add');
+    const viewBlock = document.getElementById('project-view-hashtags-post-view');
+    const editBlock = document.getElementById('project-view-hashtags-post-edit-block');
+    const listEl = document.getElementById('project-view-hashtags-post-list');
+    if (!addBlock || !viewBlock || !listEl) return;
+    const post = (projectViewHashtagsConfig && projectViewHashtagsConfig.post) ? projectViewHashtagsConfig.post : {};
+    const tags = parseHashtagsString(post.hashtags || '');
+    if (tags.length === 0) {
+      addBlock.classList.remove('hidden');
+      viewBlock.classList.add('hidden');
+      if (editBlock) editBlock.classList.remove('project-view-hashtags-edit-block-open');
+      return;
+    }
+    addBlock.classList.add('hidden');
+    viewBlock.classList.remove('hidden');
+    if (editBlock) editBlock.classList.remove('project-view-hashtags-edit-block-open');
+    listEl.innerHTML = tags.map(function (tag, i) {
+      var safeTag = tag.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return '<div class="project-view-hashtags-tag-item" draggable="true" data-index="' + i + '" role="button" tabindex="0" aria-label="Перетащите для изменения порядка"><span class="project-view-hashtags-tag-btn">:: #' + safeTag + '</span><button type="button" class="project-view-hashtags-tag-delete" data-tag="' + safeTag + '" title="Удалить" aria-label="Удалить"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>';
+    }).join('');
+    listEl.querySelectorAll('.project-view-hashtags-tag-delete').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var tagToRemove = btn.getAttribute('data-tag');
+        if (!tagToRemove || !currentProjectViewId) return;
+        var post = (projectViewHashtagsConfig && projectViewHashtagsConfig.post) ? projectViewHashtagsConfig.post : {};
+        var tags = parseHashtagsString(post.hashtags || '');
+        tags = tags.filter(function (t) { return t !== tagToRemove; });
+        var newHashtags = tags.join(', ');
+        var payload = {
+          post: { hashtags: newHashtags, max_count: post.max_count ?? 5, placement: post.placement || 'new_line', mode: post.mode || 'strict' },
+          comment: (projectViewHashtagsConfig && projectViewHashtagsConfig.comment) ? { hashtags: projectViewHashtagsConfig.comment.hashtags || '', max_count: projectViewHashtagsConfig.comment.max_count ?? 5, placement: projectViewHashtagsConfig.comment.placement || 'new_line', mode: projectViewHashtagsConfig.comment.mode || 'strict' } : { hashtags: '', max_count: 5, placement: 'new_line', mode: 'strict' }
+        };
+        API.put('/projects/' + currentProjectViewId + '/hashtags/config', payload).then(function () {
+          projectViewHashtagsConfig = { post: payload.post, comment: payload.comment };
+          var p = projects.find(function (x) { return x.id == currentProjectViewId; });
+          if (p) {
+            var totalTags = parseHashtagsString(payload.post.hashtags).length + parseHashtagsString(payload.comment.hashtags).length;
+            p.hashtags_count = totalTags;
+            updateProjectViewNavStatuses(p);
+          }
+          updateProjectViewHashtagsPostPanel();
+          updateProjectViewHashtagsCommentPanel();
+          updateHashtagsMainButton();
+          App.toast('Хэштег удалён', 'success');
+        }).catch(function (e) { App.toast(e.message || 'Ошибка', 'error'); });
+      });
+    });
+    listEl.querySelectorAll('.project-view-hashtags-tag-item').forEach(function (item) {
+      item.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/plain', item.dataset.index);
+        e.dataTransfer.effectAllowed = 'move';
+        item.classList.add('project-view-hashtags-tag-dragging');
+      });
+      item.addEventListener('dragend', function () {
+        item.classList.remove('project-view-hashtags-tag-dragging');
+        listEl.querySelectorAll('.project-view-hashtags-tag-item').forEach(function (el) { el.classList.remove('project-view-hashtags-tag-drag-over'); });
+      });
+      item.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        item.classList.add('project-view-hashtags-tag-drag-over');
+      });
+      item.addEventListener('dragleave', function () {
+        item.classList.remove('project-view-hashtags-tag-drag-over');
+      });
+      item.addEventListener('drop', function (e) {
+        e.preventDefault();
+        item.classList.remove('project-view-hashtags-tag-drag-over');
+        var from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        var to = parseInt(item.dataset.index, 10);
+        if (from === to || !currentProjectViewId) return;
+        var reordered = tags.slice();
+        reordered.splice(to, 0, reordered.splice(from, 1)[0]);
+        var newHashtags = reordered.join(', ');
+        var post = (projectViewHashtagsConfig && projectViewHashtagsConfig.post) ? projectViewHashtagsConfig.post : {};
+        var payload = {
+          post: { hashtags: newHashtags, max_count: post.max_count ?? 5, placement: post.placement || 'new_line', mode: post.mode || 'strict' },
+          comment: (projectViewHashtagsConfig && projectViewHashtagsConfig.comment) ? { hashtags: projectViewHashtagsConfig.comment.hashtags || '', max_count: projectViewHashtagsConfig.comment.max_count ?? 5, placement: projectViewHashtagsConfig.comment.placement || 'new_line', mode: projectViewHashtagsConfig.comment.mode || 'strict' } : { hashtags: '', max_count: 5, placement: 'new_line', mode: 'strict' }
+        };
+        API.put('/projects/' + currentProjectViewId + '/hashtags/config', payload).then(function () {
+          projectViewHashtagsConfig = { post: payload.post, comment: payload.comment };
+          updateProjectViewHashtagsPostPanel();
+          updateProjectViewHashtagsCommentPanel();
+          updateHashtagsMainButton();
+          App.toast('Порядок хэштегов сохранён', 'success');
+        }).catch(function (err) { App.toast(err.message || 'Ошибка', 'error'); });
+      });
+    });
+  }
+
+  function updateProjectViewHashtagsCommentPanel() {
+    const addBlock = document.getElementById('project-view-hashtags-comment-add');
+    const viewBlock = document.getElementById('project-view-hashtags-comment-view');
+    const editBlock = document.getElementById('project-view-hashtags-comment-edit-block');
+    const listEl = document.getElementById('project-view-hashtags-comment-list');
+    if (!addBlock || !viewBlock || !listEl) return;
+    const comment = (projectViewHashtagsConfig && projectViewHashtagsConfig.comment) ? projectViewHashtagsConfig.comment : {};
+    const tags = parseHashtagsString(comment.hashtags || '');
+    if (tags.length === 0) {
+      addBlock.classList.remove('hidden');
+      viewBlock.classList.add('hidden');
+      if (editBlock) editBlock.classList.remove('project-view-hashtags-edit-block-open');
+      return;
+    }
+    addBlock.classList.add('hidden');
+    viewBlock.classList.remove('hidden');
+    if (editBlock) editBlock.classList.remove('project-view-hashtags-edit-block-open');
+    listEl.innerHTML = tags.map(function (tag, i) {
+      var safeTag = tag.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return '<div class="project-view-hashtags-tag-item" draggable="true" data-index="' + i + '" role="button" tabindex="0" aria-label="Перетащите для изменения порядка"><span class="project-view-hashtags-tag-btn">:: #' + safeTag + '</span><button type="button" class="project-view-hashtags-tag-delete" data-tag="' + safeTag + '" title="Удалить" aria-label="Удалить"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>';
+    }).join('');
+    listEl.querySelectorAll('.project-view-hashtags-tag-delete').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var tagToRemove = btn.getAttribute('data-tag');
+        if (!tagToRemove || !currentProjectViewId) return;
+        var comment = (projectViewHashtagsConfig && projectViewHashtagsConfig.comment) ? projectViewHashtagsConfig.comment : {};
+        var tags = parseHashtagsString(comment.hashtags || '');
+        tags = tags.filter(function (t) { return t !== tagToRemove; });
+        var newHashtags = tags.join(', ');
+        var payload = {
+          post: (projectViewHashtagsConfig && projectViewHashtagsConfig.post) ? { hashtags: projectViewHashtagsConfig.post.hashtags || '', max_count: projectViewHashtagsConfig.post.max_count ?? 5, placement: projectViewHashtagsConfig.post.placement || 'new_line', mode: projectViewHashtagsConfig.post.mode || 'strict' } : { hashtags: '', max_count: 5, placement: 'new_line', mode: 'strict' },
+          comment: { hashtags: newHashtags, max_count: comment.max_count ?? 5, placement: comment.placement || 'new_line', mode: comment.mode || 'strict' }
+        };
+        API.put('/projects/' + currentProjectViewId + '/hashtags/config', payload).then(function () {
+          projectViewHashtagsConfig = { post: payload.post, comment: payload.comment };
+          var p = projects.find(function (x) { return x.id == currentProjectViewId; });
+          if (p) {
+            var totalTags = parseHashtagsString(payload.post.hashtags).length + parseHashtagsString(payload.comment.hashtags).length;
+            p.hashtags_count = totalTags;
+            updateProjectViewNavStatuses(p);
+          }
+          updateProjectViewHashtagsPostPanel();
+          updateProjectViewHashtagsCommentPanel();
+          updateHashtagsMainButton();
+          App.toast('Хэштег удалён', 'success');
+        }).catch(function (e) { App.toast(e.message || 'Ошибка', 'error'); });
+      });
+    });
+    listEl.querySelectorAll('.project-view-hashtags-tag-item').forEach(function (item) {
+      item.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/plain', item.dataset.index);
+        e.dataTransfer.effectAllowed = 'move';
+        item.classList.add('project-view-hashtags-tag-dragging');
+      });
+      item.addEventListener('dragend', function () {
+        item.classList.remove('project-view-hashtags-tag-dragging');
+        listEl.querySelectorAll('.project-view-hashtags-tag-item').forEach(function (el) { el.classList.remove('project-view-hashtags-tag-drag-over'); });
+      });
+      item.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        item.classList.add('project-view-hashtags-tag-drag-over');
+      });
+      item.addEventListener('dragleave', function () {
+        item.classList.remove('project-view-hashtags-tag-drag-over');
+      });
+      item.addEventListener('drop', function (e) {
+        e.preventDefault();
+        item.classList.remove('project-view-hashtags-tag-drag-over');
+        var from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        var to = parseInt(item.dataset.index, 10);
+        if (from === to || !currentProjectViewId) return;
+        var reordered = tags.slice();
+        reordered.splice(to, 0, reordered.splice(from, 1)[0]);
+        var newHashtags = reordered.join(', ');
+        var comment = (projectViewHashtagsConfig && projectViewHashtagsConfig.comment) ? projectViewHashtagsConfig.comment : {};
+        var payload = {
+          post: (projectViewHashtagsConfig && projectViewHashtagsConfig.post) ? { hashtags: projectViewHashtagsConfig.post.hashtags || '', max_count: projectViewHashtagsConfig.post.max_count ?? 5, placement: projectViewHashtagsConfig.post.placement || 'new_line', mode: projectViewHashtagsConfig.post.mode || 'strict' } : { hashtags: '', max_count: 5, placement: 'new_line', mode: 'strict' },
+          comment: { hashtags: newHashtags, max_count: comment.max_count ?? 5, placement: comment.placement || 'new_line', mode: comment.mode || 'strict' }
+        };
+        API.put('/projects/' + currentProjectViewId + '/hashtags/config', payload).then(function () {
+          projectViewHashtagsConfig = { post: payload.post, comment: payload.comment };
+          updateProjectViewHashtagsPostPanel();
+          updateProjectViewHashtagsCommentPanel();
+          updateHashtagsMainButton();
+          App.toast('Порядок хэштегов сохранён', 'success');
+        }).catch(function (err) { App.toast(err.message || 'Ошибка', 'error'); });
+      });
+    });
+  }
+
+  function updateHashtagsMaxInputWidth(input) {
+      if (!input || !input.classList.contains('project-view-hashtags-max-input')) return;
+      const len = String(input.value || '0').replace(/\D/g, '').length || 1;
+      input.style.setProperty('--hashtags-max-ch', String(Math.max(2, Math.min(4, len))));
+    }
+  function initProjectViewHashtags() {
+    const tabs = document.querySelectorAll('.project-view-hashtags-tab');
+    const panels = document.querySelectorAll('.project-view-hashtags-panel');
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+        panels.forEach(p => {
+          p.classList.toggle('hidden', p.id !== 'project-view-hashtags-panel-' + tab);
+        });
+        updateHashtagsMainButton();
+      });
+    });
+    document.querySelectorAll('.project-view-hashtags-max-input').forEach(input => {
+      updateHashtagsMaxInputWidth(input);
+      input.addEventListener('input', () => updateHashtagsMaxInputWidth(input));
+      input.addEventListener('change', () => updateHashtagsMaxInputWidth(input));
+    });
+    document.querySelectorAll('.project-view-hashtags-num-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        const editTab = btn.dataset.editTab;
+        const dir = btn.dataset.dir === '+' ? 1 : -1;
+        const input = editTab
+          ? document.getElementById('project-view-hashtags-edit-max-' + editTab)
+          : document.getElementById('project-view-hashtags-max-' + tab);
+        if (!input) return;
+        let v = parseInt(input.value, 10) || 0;
+        v = Math.max(0, Math.min(100, v + dir));
+        input.value = v;
+        updateHashtagsMaxInputWidth(input);
+      });
+    });
+    const saveBtn = document.getElementById('project-view-hashtags-config-save');
+    const postEditBlock = document.getElementById('project-view-hashtags-post-edit-block');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', async () => {
+        const postPanel = document.getElementById('project-view-hashtags-panel-post');
+        const postViewBlock = document.getElementById('project-view-hashtags-post-view');
+        const commentPanel = document.getElementById('project-view-hashtags-panel-comment');
+        const commentViewBlock = document.getElementById('project-view-hashtags-comment-view');
+        const isPostTab = postPanel && !postPanel.classList.contains('hidden');
+        const postHasTags = postViewBlock && !postViewBlock.classList.contains('hidden');
+        const postEditOpen = postEditBlock && postEditBlock.classList.contains('project-view-hashtags-edit-block-open');
+        if (isPostTab && postHasTags && !postEditOpen) {
+          postEditBlock.classList.add('project-view-hashtags-edit-block-open');
+          const post = (projectViewHashtagsConfig && projectViewHashtagsConfig.post) ? projectViewHashtagsConfig.post : {};
+          const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+          const setRadio = (name, val) => { const el = document.querySelector('input[name="' + name + '"][value="' + (val || 'strict') + '"]'); if (el) el.checked = true; };
+          set('project-view-hashtags-edit-text-post', post.hashtags || '');
+          set('project-view-hashtags-edit-max-post', post.max_count ?? 5);
+          set('project-view-hashtags-edit-placement-post', post.placement || 'new_line');
+          setRadio('project-view-hashtags-edit-mode-post', post.mode || 'strict');
+          document.querySelectorAll('#project-view-hashtags-post-edit-block .project-view-hashtags-max-input').forEach(updateHashtagsMaxInputWidth);
+          updateHashtagsMainButton();
+          return;
+        }
+        const commentEditBlock = document.getElementById('project-view-hashtags-comment-edit-block');
+        const isCommentTab = commentPanel && !commentPanel.classList.contains('hidden');
+        const commentHasTags = commentViewBlock && !commentViewBlock.classList.contains('hidden');
+        const commentEditOpen = commentEditBlock && commentEditBlock.classList.contains('project-view-hashtags-edit-block-open');
+        if (isCommentTab && commentHasTags && !commentEditOpen) {
+          commentEditBlock.classList.add('project-view-hashtags-edit-block-open');
+          const comment = (projectViewHashtagsConfig && projectViewHashtagsConfig.comment) ? projectViewHashtagsConfig.comment : {};
+          const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+          const setRadio = (name, val) => { const el = document.querySelector('input[name="' + name + '"][value="' + (val || 'strict') + '"]'); if (el) el.checked = true; };
+          set('project-view-hashtags-edit-text-comment', comment.hashtags || '');
+          set('project-view-hashtags-edit-max-comment', comment.max_count ?? 5);
+          set('project-view-hashtags-edit-placement-comment', comment.placement || 'new_line');
+          setRadio('project-view-hashtags-edit-mode-comment', comment.mode || 'strict');
+          document.querySelectorAll('#project-view-hashtags-comment-edit-block .project-view-hashtags-max-input').forEach(updateHashtagsMaxInputWidth);
+          updateHashtagsMainButton();
+          return;
+        }
+        const signaturePanel = document.getElementById('project-view-hashtags-panel-signature');
+        const signatureViewBlock = document.getElementById('project-view-signature-view');
+        const signatureAddBlock = document.getElementById('project-view-signature-add');
+        const isSignatureTab = signaturePanel && !signaturePanel.classList.contains('hidden');
+        const signatureViewVisible = signatureViewBlock && !signatureViewBlock.classList.contains('hidden');
+        if (isSignatureTab && signatureViewVisible && signatureAddBlock) {
+          signatureViewBlock.classList.add('hidden');
+          signatureAddBlock.classList.remove('hidden');
+          updateHashtagsMainButton();
+          return;
+        }
+        if (!currentProjectViewId) return;
+        const get = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
+        const getRadio = (name) => (document.querySelector('input[name="' + name + '"]:checked') || {}).value || 'strict';
+        const getNum = (id) => { const n = parseInt(document.getElementById(id)?.value, 10); return isNaN(n) ? 5 : Math.max(0, Math.min(100, n)); };
+        const usePostEditForm = postViewBlock && !postViewBlock.classList.contains('hidden');
+        const useCommentEditForm = commentViewBlock && !commentViewBlock.classList.contains('hidden');
+        const postPayload = usePostEditForm
+          ? { hashtags: get('project-view-hashtags-edit-text-post'), max_count: getNum('project-view-hashtags-edit-max-post'), placement: get('project-view-hashtags-edit-placement-post') || 'new_line', mode: getRadio('project-view-hashtags-edit-mode-post') }
+          : { hashtags: get('project-view-hashtags-text-post'), max_count: getNum('project-view-hashtags-max-post'), placement: get('project-view-hashtags-placement-post') || 'new_line', mode: getRadio('project-view-hashtags-mode-post') };
+        const commentPayload = useCommentEditForm
+          ? { hashtags: get('project-view-hashtags-edit-text-comment'), max_count: getNum('project-view-hashtags-edit-max-comment'), placement: get('project-view-hashtags-edit-placement-comment') || 'new_line', mode: getRadio('project-view-hashtags-edit-mode-comment') }
+          : { hashtags: get('project-view-hashtags-text-comment'), max_count: getNum('project-view-hashtags-max-comment'), placement: get('project-view-hashtags-placement-comment') || 'new_line', mode: getRadio('project-view-hashtags-mode-comment') };
+        const hashtagsPayload = {
+          post: postPayload,
+          comment: commentPayload
+        };
+        const signaturePayload = { name: get('project-view-signature-name'), usage: get('project-view-signature-usage') || 'manual', text: get('project-view-signature-text') };
+        try {
+          await Promise.all([
+            API.put('/projects/' + currentProjectViewId + '/hashtags/config', hashtagsPayload),
+            API.put('/projects/' + currentProjectViewId + '/signature', signaturePayload)
+          ]);
+          projectViewHashtagsConfig = { post: hashtagsPayload.post, comment: hashtagsPayload.comment };
+          projectViewSignature = signaturePayload;
+          const p = projects.find(x => x.id == currentProjectViewId);
+          const totalTags = (hashtagsPayload.post.hashtags || '').split(/[\s,]+/).filter(Boolean).length + (hashtagsPayload.comment.hashtags || '').split(/[\s,]+/).filter(Boolean).length;
+          const hasSignature = !!(signaturePayload.name || signaturePayload.text);
+          if (p) {
+            p.hashtags_count = totalTags;
+            updateProjectViewNavStatuses(p);
+          }
+          var templatesStatusEl = document.getElementById('project-nav-status-templates');
+          if (templatesStatusEl) {
+            var templatesSet = totalTags > 0 || hasSignature;
+            templatesStatusEl.textContent = templatesSet ? 'добавлены' : 'не добавлены';
+            templatesStatusEl.classList.toggle('is-set', templatesSet);
+          }
+          updateProjectViewHashtagsPostPanel();
+          updateProjectViewHashtagsCommentPanel();
+          updateProjectViewSignaturePanel();
+          updateHashtagsMainButton();
+          App.toast('Настройки шаблонов сохранены', 'success');
+        } catch (e) {
+          App.toast(e.message || 'Ошибка', 'error');
+        }
+      });
+    }
   }
 
   function renderProjectViewChannels(projectId) {
@@ -1187,6 +1808,7 @@ const PageProjects = (() => {
     initProjectViewScheduleModal();
     initProjectViewScheduleClear();
     initProjectViewUtm();
+    initProjectViewHashtags();
   }
 
 

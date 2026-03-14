@@ -10,6 +10,7 @@ require_once __DIR__ . "/controllers/SystemSettingsController.php";
 require_once __DIR__ . "/controllers/SocialAccountController.php";
 require_once __DIR__ . "/controllers/ProjectController.php";
 require_once __DIR__ . "/controllers/ProjectChannelController.php";
+require_once __DIR__ . "/controllers/ProjectHashtagController.php";
 require_once __DIR__ . "/controllers/PublishScheduleController.php";
 require_once __DIR__ . "/controllers/PostController.php";
 
@@ -91,6 +92,13 @@ try {
         $method === "POST"   && preg_match('#^/projects/(\d+)/channels$#', $uri, $m)          => (new ProjectChannelController())->create((int)$m[1]),
         $method === "PATCH"  && preg_match('#^/projects/(\d+)/channels/(\d+)$#', $uri, $m)   => (new ProjectChannelController())->update((int)$m[1], (int)$m[2]),
         $method === "DELETE" && preg_match('#^/projects/(\d+)/channels/(\d+)$#', $uri, $m)   => (new ProjectChannelController())->delete((int)$m[1], (int)$m[2]),
+        $method === "GET"    && preg_match('#^/projects/(\d+)/hashtags$#', $uri, $m)          => (new ProjectHashtagController())->getAll((int)$m[1]),
+        $method === "GET"    && preg_match('#^/projects/(\d+)/hashtags/config$#', $uri, $m)   => (new ProjectHashtagController())->getConfig((int)$m[1]),
+        $method === "PUT"    && preg_match('#^/projects/(\d+)/hashtags/config$#', $uri, $m)   => (new ProjectHashtagController())->putConfig((int)$m[1]),
+        $method === "GET"    && preg_match('#^/projects/(\d+)/signature$#', $uri, $m)          => (new ProjectController())->getSignature((int)$m[1]),
+        $method === "PUT"    && preg_match('#^/projects/(\d+)/signature$#', $uri, $m)          => (new ProjectController())->putSignature((int)$m[1]),
+        $method === "POST"   && preg_match('#^/projects/(\d+)/hashtags$#', $uri, $m)          => (new ProjectHashtagController())->create((int)$m[1]),
+        $method === "DELETE" && preg_match('#^/projects/(\d+)/hashtags/(\d+)$#', $uri, $m)    => (new ProjectHashtagController())->delete((int)$m[1], (int)$m[2]),
         $method === "POST"   && preg_match('#^/projects/(\d+)/posts$#', $uri, $m)             => (new PostController())->create((int)$m[1]),
 
         // Publish schedules

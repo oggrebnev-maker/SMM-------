@@ -16,15 +16,42 @@ class ProjectController {
         $user = AuthMiddleware::handle();
         $uid = $user['id'];
 
-        $stmt = $this->db->prepare("
-            SELECT p.* FROM projects p
+        $sqlWithHashtags = "
+            SELECT p.*, (SELECT COUNT(*) FROM project_hashtags ph WHERE ph.project_id = p.id) AS hashtags_count
+            FROM projects p
             LEFT JOIN project_members pm ON pm.project_id = p.id AND pm.user_id = :uid2
             WHERE (p.user_id = :uid OR pm.user_id IS NOT NULL)
               AND p.is_active = 1
             ORDER BY p.created_at DESC
-        ");
-        $stmt->execute([':uid' => $uid, ':uid2' => $uid]);
-        $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        ";
+        $sqlWithoutHashtags = "
+            SELECT p.*
+            FROM projects p
+            LEFT JOIN project_members pm ON pm.project_id = p.id AND pm.user_id = :uid2
+            WHERE (p.user_id = :uid OR pm.user_id IS NOT NULL)
+              AND p.is_active = 1
+            ORDER BY p.created_at DESC
+        ";
+        $params = [':uid' => $uid, ':uid2' => $uid];
+
+        try {
+            $stmt = $this->db->prepare($sqlWithHashtags);
+            $stmt->execute($params);
+            $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            // Таблица project_hashtags может отсутствовать до выполнения миграции
+            if (strpos($e->getMessage(), 'project_hashtags') !== false || strpos($e->getMessage(), 'exist') !== false) {
+                $stmt = $this->db->prepare($sqlWithoutHashtags);
+                $stmt->execute($params);
+                $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($projects as &$row) {
+                    $row['hashtags_count'] = 0;
+                }
+                unset($row);
+            } else {
+                throw $e;
+            }
+        }
 
         Response::success(['projects' => $projects]);
     }
@@ -158,14 +185,65 @@ class ProjectController {
     }
 
     private function getAccessibleProject(int $id, int $uid): ?array {
-        $stmt = $this->db->prepare("
-            SELECT p.* FROM projects p
-            LEFT JOIN project_members pm ON pm.project_id = p.id AND pm.user_id = :uid2
-            WHERE p.id = :id AND p.is_active = 1
-              AND (p.user_id = :uid OR pm.user_id IS NOT NULL)
-        ");
-        $stmt->execute([':id'=>$id, ':uid'=>$uid, ':uid2'=>$uid]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $params = [':id'=>$id, ':uid'=>$uid, ':uid2'=>$uid];
+        $sqlWith = "SELECT p.*, (SELECT COUNT(*) FROM project_hashtags ph WHERE ph.project_id = p.id) AS hashtags_count
+            FROM projects p LEFT JOIN project_members pm ON pm.project_id = p.id AND pm.user_id = :uid2
+            WHERE p.id = :id AND p.is_active = 1 AND (p.user_id = :uid OR pm.user_id IS NOT NULL)";
+        $sqlWithout = "SELECT p.* FROM projects p LEFT JOIN project_members pm ON pm.project_id = p.id AND pm.user_id = :uid2
+            WHERE p.id = :id AND p.is_active = 1 AND (p.user_id = :uid OR pm.user_id IS NOT NULL)";
+        try {
+            $stmt = $this->db->prepare($sqlWith);
+            $stmt->execute($params);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            if (strpos($e->getMessage(), 'project_hashtags') !== false || strpos($e->getMessage(), 'exist') !== false) {
+                $stmt = $this->db->prepare($sqlWithout);
+                $stmt->execute($params);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($row) $row['hashtags_count'] = 0;
+            } else {
+                throw $e;
+            }
+        }
         return $row ?: null;
+    }
+
+    // GET /projects/{id}/signature
+    public function getSignature(int $id): void {
+        $user = AuthMiddleware::handle();
+        $project = $this->getAccessibleProject($id, $user['id']);
+        if (!$project) { Response::notFound('Проект не найден'); return; }
+        $raw = isset($project['signature_settings']) ? $project['signature_settings'] : null;
+        $data = is_string($raw) ? (json_decode($raw, true) ?: []) : (is_array($raw) ? $raw : []);
+        Response::success([
+            'name'  => $data['name'] ?? '',
+            'usage' => $data['usage'] ?? 'manual',
+            'text'  => $data['text'] ?? '',
+        ]);
+    }
+
+    // PUT /projects/{id}/signature
+    public function putSignature(int $id): void {
+        $user = AuthMiddleware::handle();
+        $project = $this->getAccessibleProject($id, $user['id']);
+        if (!$project) { Response::notFound('Проект не найден'); return; }
+        $body = json_decode(file_get_contents('php://input'), true) ?? [];
+        $data = [
+            'name'  => trim((string)($body['name'] ?? '')),
+            'usage' => in_array($body['usage'] ?? '', ['manual', 'post_end', 'comment_end']) ? $body['usage'] : 'manual',
+            'text'  => trim((string)($body['text'] ?? '')),
+        ];
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE);
+        try {
+            $stmt = $this->db->prepare("UPDATE projects SET signature_settings = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->execute([$json, $id]);
+        } catch (Throwable $ex) {
+            if (strpos($ex->getMessage(), 'signature_settings') !== false || strpos($ex->getMessage(), 'Unknown column') !== false) {
+                Response::error('Выполните миграции БД: api/migrations/run_all_templates.sql', 503);
+                return;
+            }
+            throw $ex;
+        }
+        Response::success(['signature' => $data]);
     }
 }

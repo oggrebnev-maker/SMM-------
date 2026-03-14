@@ -94,7 +94,7 @@ const PageSocialAccounts = (() => {
         <div class="modal-box" style="width:480px;">
           <div class="modal-header">
             <h3 id="sa-modal-title">Подключение аккаунта</h3>
-            <button class="btn-icon" id="sa-modal-close">
+            <button class="btn-instr" id="sa-modal-close" type="button" title="Закрыть">
               <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             </button>
           </div>
@@ -126,7 +126,7 @@ const PageSocialAccounts = (() => {
       <div id="sa-instruction-panel" style="position:fixed;top:0;right:0;width:400px;height:100vh;background:var(--surface);border-left:1px solid var(--border);box-shadow:-8px 0 32px rgba(51,63,100,0.12);z-index:1200;flex-direction:column;display:none;">
         <div style="padding:24px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
           <div style="font-size:15px;font-weight:800;color:var(--text);" id="sa-instruction-title">Инструкция</div>
-          <button class="btn-icon" id="sa-instruction-close">
+          <button class="btn-instr" id="sa-instruction-close" type="button" title="Закрыть">
             <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </div>
@@ -228,14 +228,14 @@ const PageSocialAccounts = (() => {
         <!-- Действия -->
         <!-- Действия -->
         <div class="sa-card-actions" style="display:flex;gap:4px;flex-shrink:0;">
-          <button class="btn-icon sa-toggle-btn" data-id="${a.id}" data-active="${a.is_active}" title="${a.is_active ? 'Отключить' : 'Включить'}" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);color:${a.is_active ? '#4ade80' : 'var(--muted)'};">${a.is_active ? '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="10" r="3" fill="currentColor"/></svg>' : '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="10" r="3" fill="currentColor"/></svg>'}</button>
-          <button class="btn-icon sa-edit-btn" data-id="${a.id}" title="Редактировать" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5a2.121 2.121 0 013 3L7 16H4v-3L13.5 3.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
-          <button class="btn-icon sa-delete-btn" data-id="${a.id}" title="Удалить" style="width:34px;height:34px;border-radius:8px;background:rgba(252,63,29,0.07);border:1.5px solid rgba(252,63,29,0.2);color:var(--red);"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button class="btn-instr sa-toggle-btn" data-id="${a.id}" data-active="${a.is_active}" title="${a.is_active ? 'Отключить' : 'Включить'}" type="button" style="color:${a.is_active ? '#4ade80' : 'var(--muted)'};">${a.is_active ? '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="10" r="3" fill="currentColor"/></svg>' : '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="10" r="3" fill="currentColor"/></svg>'}</button>
+          <button class="btn-instr sa-edit-btn" data-id="${a.id}" title="Редактировать" type="button"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5a2.121 2.121 0 013 3L7 16H4v-3L13.5 3.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
+          <button class="btn-instr sa-delete-btn" data-id="${a.id}" title="Удалить" type="button"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
         </div>
         <div class="sa-card-actions-bottom" style="width:100%;display:flex;gap:4px;padding-top:8px;border-top:1px solid var(--border);">
-          <button class="btn-icon sa-toggle-btn" data-id="${a.id}" data-active="${a.is_active}" title="${a.is_active ? 'Отключить' : 'Включить'}" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);color:${a.is_active ? '#4ade80' : 'var(--muted)'};">${a.is_active ? '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="10" r="3" fill="currentColor"/></svg>' : '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="10" r="3" fill="currentColor"/></svg>'}</button>
-          <button class="btn-icon sa-edit-btn" data-id="${a.id}" title="Редактировать" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5a2.121 2.121 0 013 3L7 16H4v-3L13.5 3.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
-          <button class="btn-icon sa-delete-btn" data-id="${a.id}" title="Удалить" style="width:34px;height:34px;border-radius:8px;background:rgba(252,63,29,0.07);border:1.5px solid rgba(252,63,29,0.2);color:var(--red);"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button class="btn-instr sa-toggle-btn" data-id="${a.id}" data-active="${a.is_active}" title="${a.is_active ? 'Отключить' : 'Включить'}" type="button" style="color:${a.is_active ? '#4ade80' : 'var(--muted)'};">${a.is_active ? '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="10" r="3" fill="currentColor"/></svg>' : '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="10" r="3" fill="currentColor"/></svg>'}</button>
+          <button class="btn-instr sa-edit-btn" data-id="${a.id}" title="Редактировать" type="button"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5a2.121 2.121 0 013 3L7 16H4v-3L13.5 3.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
+          <button class="btn-instr sa-delete-btn" data-id="${a.id}" title="Удалить" type="button"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
         </div>
       </div>`;
   }
