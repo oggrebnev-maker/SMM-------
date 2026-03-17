@@ -310,7 +310,7 @@ const App = (() => {
       if (typeof window.syncUserToDrawer === 'function') {
         window.syncUserToDrawer();
       }
-      if (window.State && State.get) {
+      if (typeof State !== 'undefined' && State.get) {
         const proj = State.get('project');
         const mn = document.getElementById('mob-project-name');
         const md = document.getElementById('mob-project-dot');
@@ -365,7 +365,11 @@ const App = (() => {
     if (topbarLeft && path !== '/dashboard' && path !== '/posts') topbarLeft.innerHTML = '';
     if (handler) {
       const container = document.getElementById('page-container');
+      const sidebarEl = document.getElementById('page-sidebar');
+      if (sidebarEl) sidebarEl.innerHTML = '<p class="page-sidebar-hint">Здесь можно разместить подсказки.</p>';
       container.classList.toggle('posts-layout', path === '/posts' || path === '/dashboard');
+      const pagesWithSidebar = ['/dashboard', '/projects', '/social-accounts', '/publish-schedule', '/profile', '/system-settings'];
+      container.classList.toggle('has-right-sidebar', pagesWithSidebar.includes(path));
       const result = handler(container);
       if (result && typeof result.then === 'function') await result;
     } else {
@@ -489,6 +493,7 @@ const App = (() => {
 
   async function afterLogin(user) {
     updateSidebarUser(user);
+    await loadSidebarSettings();
     showShell();
     const savedId = State.getSavedProjectId();
     if (savedId && savedId !== 'undefined' && savedId !== 'null') {
@@ -525,6 +530,10 @@ const App = (() => {
     try {
       const ps = await API.get('/system-settings/public');
       const s = (ps.data && ps.data.settings) || ps.settings || {};
+      // сохраним публичные настройки в глобальном стейте, чтобы страницы могли подставлять тексты сайдбаров
+      if (typeof State !== 'undefined' && State.set) {
+        State.set('publicSettings', s);
+      }
       if (s.site_name) {
         document.title = s.site_name;
         document.querySelectorAll('.brand-name').forEach(el => el.textContent = s.site_name);
@@ -537,6 +546,19 @@ const App = (() => {
       const regSwitch = document.getElementById('auth-register-switch');
       if (regSwitch) regSwitch.style.display = (s.registration_enabled == '1') ? '' : 'none';
     } catch(e) {}
+  }
+
+  // ─── Загрузка сайдбаров (приватные настройки, только после логина) ─
+
+  async function loadSidebarSettings() {
+    try {
+      const res = await API.get('/system-settings');
+      const s = (res.data && res.data.settings) || res.settings || {};
+      if (typeof State !== 'undefined' && State.set) {
+        State.set('publicSettings', s);
+      }
+    } catch (e) {
+    }
   }
 
   // ─── Init ──────────────────────────────────────────────────────────

@@ -74,6 +74,15 @@ const API = (() => {
       if (!res.ok) throw new Error(data.message || `Ошибка ${res.status}`);
       return data;
     },
+    /** GET с авторизацией, возвращает Blob (для картинок и т.д.) */
+    getBlob: async (path) => {
+      const token = getToken();
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(BASE_URL + path, { method: 'GET', headers });
+      if (!res.ok) throw new Error(res.status === 401 ? 'Сессия истекла' : `Ошибка ${res.status}`);
+      return res.blob();
+    },
   };
 
 })();

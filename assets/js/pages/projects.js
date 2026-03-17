@@ -19,13 +19,6 @@ const PageProjects = (() => {
     }
 
     container.innerHTML = `
-      <div class="page-header" style="margin-bottom:24px;">
-        <div>
-          <div class="page-title">Проекты</div>
-          <div class="page-subtitle">Ваши рабочие пространства</div>
-        </div>
-      </div>
-
       <div id="projects-list"></div>
 
       <!-- Панель настроек проекта -->
@@ -43,27 +36,27 @@ const PageProjects = (() => {
             <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;">
+        <div class="form-panel-body" style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;">
           <p style="font-size:13px;color:var(--text2);line-height:1.5;">UTM-метки автоматически добавляются к ссылкам в публикациях этого проекта.</p>
           <div class="form-group">
             <label>utm_source</label>
-            <input type="text" id="proj-utm-source" placeholder="telegram, vk, ok...">
+            <input type="text" id="proj-utm-source" class="form-control" placeholder="telegram, vk, ok...">
           </div>
           <div class="form-group">
             <label>utm_medium</label>
-            <input type="text" id="proj-utm-medium" placeholder="social, post...">
+            <input type="text" id="proj-utm-medium" class="form-control" placeholder="social, post...">
           </div>
           <div class="form-group">
             <label>utm_campaign</label>
-            <input type="text" id="proj-utm-campaign" placeholder="название кампании">
+            <input type="text" id="proj-utm-campaign" class="form-control" placeholder="название кампании">
           </div>
           <div class="form-group">
             <label>utm_content <span style="font-size:11px;color:var(--muted);font-weight:400;">(необязательно)</span></label>
-            <input type="text" id="proj-utm-content" placeholder="{post_id}, баннер...">
+            <input type="text" id="proj-utm-content" class="form-control" placeholder="{post_id}, баннер...">
           </div>
           <div id="proj-utm-error" class="form-error hidden"></div>
         </div>
-        <div style="padding:0 24px 24px;display:flex;gap:10px;">
+        <div class="form-panel-footer" style="padding:0 24px 24px;display:flex;gap:10px;">
           <button class="btn btn-secondary" id="proj-utm-cancel" style="flex:1;">Отмена</button>
           <button class="btn btn-primary" id="proj-utm-save" style="flex:2;">Сохранить</button>
         </div>
@@ -153,40 +146,36 @@ const PageProjects = (() => {
         </div>
       </div>
 
-      <!-- Модал создания/редактирования проекта -->
-      <div id="project-modal" class="modal hidden">
-        <div class="modal-backdrop" id="modal-backdrop"></div>
+      <!-- Модальное окно создания проекта (первый шаг), после сохранения — переход в раздел редактирования -->
+      <div id="project-create-modal" class="modal project-create-modal" aria-hidden="true">
+        <div class="modal-backdrop" id="project-create-backdrop"></div>
         <div class="modal-box">
           <div class="modal-header">
-            <h3 id="project-modal-title">Новый проект</h3>
-            <button class="btn-icon" id="modal-close">
+            <h3>Создание нового проекта</h3>
+            <button type="button" class="btn-icon" id="modal-close" aria-label="Закрыть">
               <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             </button>
           </div>
-          <form id="project-form" style="padding:22px 26px;display:flex;flex-direction:column;gap:16px;">
+          <form id="project-form">
             <input type="hidden" id="proj-id">
-            <div class="form-group">
-              <label>Название *</label>
-              <input type="text" id="proj-name" placeholder="Бренд «Кофейня»" maxlength="150">
-            </div>
-            <div class="form-group">
-              <label>Описание</label>
-              <textarea id="proj-desc" placeholder="О чём этот проект..." rows="3"></textarea>
-            </div>
-            <div class="form-group">
+            <div class="form-group" id="project-form-color-wrap">
               <label>Цвет метки</label>
-              <div class="color-picker">
-                ${['#6366f1','#22d3ee','#f59e0b','#4ade80','#f87171','#e879f9','#fb923c','#333f64','#fc3f1d'].map(c => `
-                  <div class="color-dot" data-color="${c}" style="background:${c}"></div>
-                `).join('')}
-              </div>
+              <div class="project-view-colors" id="project-create-colors">${['#6366f1','#22d3ee','#f59e0b','#4ade80','#f87171','#e879f9','#fb923c','#333f64','#fc3f1d'].map(c => `<div class="color-dot" data-color="${c}" style="background:${c}"></div>`).join('')}</div>
               <input type="hidden" id="proj-color" value="#6366f1">
             </div>
+            <div class="form-group">
+              <label>Название проекта</label>
+              <input type="text" id="proj-name" placeholder="Название проекта" maxlength="150">
+            </div>
+            <div class="form-group">
+              <label>Описание проекта</label>
+              <textarea id="proj-desc" placeholder="О чём этот проект..." rows="3"></textarea>
+            </div>
             <div id="project-form-error" class="form-error hidden"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-ghost" id="modal-cancel">Отмена</button>
-              <button type="submit" class="btn btn-primary" id="proj-submit">
-                <span class="btn-text">Создать</span>
+            <div class="modal-footer project-create-modal-footer">
+              <button type="button" class="btn btn-secondary btn-size-1" id="modal-cancel">Отмена</button>
+              <button type="submit" class="btn btn-primary btn-size-1" id="proj-submit">
+                <span class="btn-text">Сохранить</span>
                 <span class="btn-loader hidden">⟳</span>
               </button>
             </div>
@@ -215,16 +204,11 @@ const PageProjects = (() => {
                     <h2 class="project-view-section-title">Общие настройки</h2>
                     <div class="form-group">
                       <label>Аватар</label>
-                      <div class="project-view-avatar-field">
-                        <div class="project-view-avatar-row">
-                          <div class="project-view-form-avatar" id="project-view-form-avatar"></div>
-                          <div class="project-view-avatar-actions">
-                            <label class="btn btn-ghost btn-sm" for="project-view-logo-input">Загрузить</label>
-                            <input type="file" id="project-view-logo-input" accept="image/*" style="display:none">
-                            <button type="button" class="btn btn-danger btn-sm" id="project-view-logo-delete" style="display:none">Удалить</button>
-                          </div>
-                        </div>
+                      <div id="project-view-logo-uploads" class="posts-form-media-uploads" role="button" tabindex="0" aria-label="Перетащите сюда или нажмите для добавления изображения">
+                        <div class="posts-form-media-thumbnails" id="project-view-logo-thumbnails"></div>
+                        <div class="posts-form-media-drop-hint" id="project-view-logo-drop-hint">Перетащите сюда или нажмите для добавления изображения</div>
                       </div>
+                      <input type="file" id="project-view-logo-input" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none">
                     </div>
                     <div class="form-group" id="project-view-color-wrap">
                       <label>Цвет метки</label>
@@ -238,16 +222,6 @@ const PageProjects = (() => {
                     <div class="form-group">
                       <label>Описание проекта</label>
                       <textarea id="project-view-desc" placeholder="О чём этот проект..." rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                      <label>Добавить в команду</label>
-                      <div class="project-view-team-dropdown" id="project-view-team-dropdown">
-                        <div class="project-view-team-empty" id="project-view-team-empty">
-                          <button type="button" class="project-view-team-add-btn" id="project-view-create-team-btn">+</button>
-                          <span class="project-view-team-empty-placeholder">Создать команду</span>
-                        </div>
-                        <div id="project-view-teams-list" class="project-view-teams-list"></div>
-                      </div>
                     </div>
                     <div id="project-view-general-error" class="form-error hidden"></div>
                     <div class="project-view-save-wrap">
@@ -325,12 +299,51 @@ const PageProjects = (() => {
                   </div>
                 </div>
               </div>
-              <div id="project-view-section-watermark" class="project-view-section hidden" data-section="watermark"><p class="project-view-placeholder">Вотермарк</p></div>
+              <div id="project-view-section-watermark" class="project-view-section hidden" data-section="watermark">
+                <div class="project-view-section-inner">
+                  <div class="project-view-card">
+                    <h2 class="project-view-section-title">Вотермарк</h2>
+                    <p class="project-view-section-desc">Если вы хотите защитить свои креативы от копирования, добавьте watermark — картинку, которая будет автоматически накладываться поверх ваших медиафайлов.</p>
+                    <div class="project-view-watermark-form">
+                      <div class="form-group">
+                        <label class="posts-form-section-label">Изображение вотермарка</label>
+                        <div id="project-view-watermark-uploads" class="posts-form-media-uploads" role="button" tabindex="0" aria-label="Перетащите сюда или нажмите для добавления изображения">
+                          <div class="posts-form-media-thumbnails" id="project-view-watermark-thumbnails"></div>
+                          <div class="posts-form-media-drop-hint" id="project-view-watermark-drop-hint">Перетащите сюда или нажмите для добавления изображения</div>
+                        </div>
+                        <input type="file" id="project-view-watermark-file" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;">
+                      </div>
+                      <div class="form-group">
+                        <label>Позиция на изображении</label>
+                        <select id="project-view-watermark-position" class="form-control">
+                          <option value="top_left">Верхний левый угол</option>
+                          <option value="top_right">Верхний правый угол</option>
+                          <option value="center">Центр</option>
+                          <option value="bottom_left">Нижний левый угол</option>
+                          <option value="bottom_right">Нижний правый угол</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label>Размер вотермарка: <span id="project-view-watermark-size-value">100</span>%</label>
+                        <input type="range" id="project-view-watermark-size" class="project-view-watermark-range" min="5" max="200" value="100">
+                      </div>
+                      <div class="form-group">
+                        <label>Прозрачность: <span id="project-view-watermark-opacity-value">80</span>%</label>
+                        <input type="range" id="project-view-watermark-opacity" class="project-view-watermark-range" min="0" max="100" value="80">
+                      </div>
+                    </div>
+                    <div class="project-view-save-wrap">
+                      <button type="button" class="btn btn-secondary btn-size-1" id="project-view-watermark-delete" style="display:none;">Удалить вотермарк</button>
+                      <button type="button" class="btn btn-primary btn-size-1 btn-full" id="project-view-watermark-save">Сохранить</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div id="project-view-section-templates" class="project-view-section hidden" data-section="templates">
                 <div class="project-view-section-inner">
                   <div class="project-view-card">
                     <h2 class="project-view-section-title">Шаблоны</h2>
-                    <p class="project-view-section-desc">Настройте хэштеги для текста поста и для комментариев. Вводите без символа #, через запятую или с новой строки.</p>
+                    <p class="project-view-section-desc" id="project-view-templates-desc">Настройте хэштеги для постов проекта. Это поможет быстро вставлять их в текст нажатием одной кнопки. Вводите без символа #, через запятую или с новой строки.</p>
                     <div class="project-view-hashtags-tabs">
                       <button type="button" class="btn-instr project-view-hashtags-tab active" data-tab="post"><svg class="project-view-hashtags-tab-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg><span>Хэштеги поста</span></button>
                       <button type="button" class="btn-instr project-view-hashtags-tab" data-tab="comment"><svg class="project-view-hashtags-tab-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Хэштеги комментариев</span></button>
@@ -490,10 +503,15 @@ const PageProjects = (() => {
                     </div>
                     <div id="project-view-hashtags-panel-signature" class="project-view-hashtags-panel hidden">
                       <div id="project-view-signature-view" class="project-view-hashtags-view-block hidden">
-                        <p class="project-view-hashtags-list-caption">Текущая подпись</p>
+                        <p class="project-view-hashtags-list-caption" id="project-view-signature-caption">Текущая подпись</p>
                         <div id="project-view-signature-display" class="project-view-signature-display"></div>
                       </div>
-                      <div id="project-view-signature-add" class="project-view-hashtags-add-block">
+                      <div id="project-view-signature-empty" class="project-view-signature-empty hidden">
+                        <button type="button" class="project-view-signature-add-btn" id="project-view-signature-add-btn" aria-label="Добавить подпись">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                        </button>
+                      </div>
+                      <div id="project-view-signature-add" class="project-view-hashtags-add-block hidden">
                         <div class="form-group">
                           <label>Название</label>
                           <input type="text" id="project-view-signature-name" class="form-control" placeholder="Название">
@@ -507,12 +525,20 @@ const PageProjects = (() => {
                           </select>
                         </div>
                         <div class="form-group">
+                          <label>Где использовать эту подпись?</label>
+                          <select id="project-view-signature-where" class="form-control">
+                            <option value="post_end">В постах</option>
+                            <option value="comment_end">В комментариях</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
                           <label>Подпись</label>
                           <input type="text" id="project-view-signature-text" class="form-control" placeholder="Подпись">
                         </div>
                       </div>
                     </div>
                     <div class="project-view-save-wrap">
+                      <button type="button" class="btn btn-secondary btn-size-1" id="project-view-hashtags-config-close">Закрыть</button>
                       <button type="button" class="btn btn-primary btn-size-1 btn-full" id="project-view-hashtags-config-save">Сохранить</button>
                     </div>
                   </div>
@@ -591,7 +617,13 @@ const PageProjects = (() => {
               </div>
             </div>
             <div class="project-view-sidebar" id="project-view-sidebar">
-              <div class="project-view-sidebar-title">Настройки проекта</div>
+              <div class="project-view-sidebar-header">
+                <span class="project-view-sidebar-title">Настройки проекта</span>
+                <button type="button" class="project-view-sidebar-toggle" id="project-view-sidebar-toggle" aria-label="Раскрыть настройки">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7l5 5 5-5"/></svg>
+                </button>
+              </div>
+              <p class="project-view-sidebar-hint">Правильно настроенный проект позволяет автоматизировать многие процессы и не повторять одни и те же действия при каждой публикации. Это помогает значительно экономить время, упрощает работу с контентом и делает управление соцсетями более удобным и системным.</p>
               <nav class="project-view-nav">
                 <button type="button" class="project-settings-nav-btn active" data-section="general" id="project-nav-general">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.98a2 2 0 0 1 1.69.9l.66 1.2A2 2 0 0 0 12 6h8a2 2 0 0 1 2 2v3.3"/><path d="m14.305 19.53.923-.382"/><path d="m15.228 16.852-.923-.383"/><path d="m16.852 15.228-.383-.923"/><path d="m16.852 20.772-.383.924"/><path d="m19.148 15.228.383-.923"/><path d="m19.53 21.696-.382-.924"/><path d="m20.772 16.852.924-.383"/><path d="m20.772 19.148.924.383"/><circle cx="18" cy="18" r="3"/></svg>
@@ -599,23 +631,28 @@ const PageProjects = (() => {
                 </button>
                 <button type="button" class="project-settings-nav-btn" data-section="fields" id="project-nav-fields">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="4" cy="14" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="14" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 13c0-1.657.895-3 2-3h2c1.105 0 2 1.343 2 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                  <span>Аккаунты проекта</span><span class="project-settings-nav-status" id="project-nav-status-fields">не добавлены</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg>
+                  <span>Аккаунты</span><span class="project-settings-nav-status" id="project-nav-status-fields">не добавлены</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg><svg class="project-settings-nav-cross" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>
                 </button>
                 <button type="button" class="project-settings-nav-btn" data-section="schedule" id="project-nav-schedule">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                  <span>Расписание</span><span class="project-settings-nav-status" id="project-nav-status-schedule">не настроено</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg>
+                  <span>Расписание</span><span class="project-settings-nav-status" id="project-nav-status-schedule">не настроено</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg><svg class="project-settings-nav-cross" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>
                 </button>
                 <button type="button" class="project-settings-nav-btn" data-section="utm" id="project-nav-utm">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-                  <span>UTM метки</span><span class="project-settings-nav-status" id="project-nav-status-utm">не добавлены</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg>
+                  <span>UTM метки</span><span class="project-settings-nav-status" id="project-nav-status-utm">не добавлены</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg><svg class="project-settings-nav-cross" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>
                 </button>
                 <button type="button" class="project-settings-nav-btn" data-section="templates" id="project-nav-templates">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
-                  <span>Шаблоны</span><span class="project-settings-nav-status" id="project-nav-status-templates">не добавлены</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg>
+                  <span>Шаблоны</span><span class="project-settings-nav-status" id="project-nav-status-templates">не добавлены</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg><svg class="project-settings-nav-cross" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>
                 </button>
                 <button type="button" class="project-settings-nav-btn" data-section="watermark" id="project-nav-watermark">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.001 15.085A1.5 1.5 0 0 1 9 16.5"/><circle cx="18.5" cy="8.5" r="3.5"/><circle cx="7.5" cy="16.5" r="5.5"/><circle cx="7.5" cy="4.5" r="2.5"/></svg>
-                  <span>Watermark</span><span class="project-settings-nav-status" id="project-nav-status-watermark">не добавлен</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg>
+                  <span>Watermark</span><span class="project-settings-nav-status" id="project-nav-status-watermark">не добавлен</span><svg class="project-settings-nav-check" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10l4 4 8-8"/></svg><svg class="project-settings-nav-cross" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>
+                </button>
+                <button type="button" class="project-settings-nav-btn project-view-sidebar-footer-btn" id="project-view-create-team-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <span>Добавить в команду</span>
+                  <svg class="project-view-sidebar-footer-btn-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
                 </button>
               </nav>
             </div>
@@ -625,11 +662,36 @@ const PageProjects = (() => {
     `;
 
     renderList();
+    const sidebarEl = document.getElementById('page-sidebar');
+    if (sidebarEl) {
+      let title = 'Проекты';
+      let hint  = 'Проекты — это рабочее пространство, где настраиваются все основные параметры для ведения социальных сетей бренда или клиента. Здесь создается полноценный контент-план, задаются базовые настройки публикаций, шаблоны и другие параметры, которые используются при создании материалов.';
+
+      if (window.API && API.get) {
+        try {
+          const res = await API.get('/system-settings');
+          const settings = (res.data && res.data.settings) || res.settings || {};
+          if (settings.sidebar_projects_title) title = settings.sidebar_projects_title;
+          if (settings.sidebar_projects_hint)  hint  = settings.sidebar_projects_hint;
+        } catch (e) {}
+      }
+
+      sidebarEl.innerHTML = `
+        <h3 class="page-sidebar-title page-sidebar-title--large">${title}</h3>
+        <p class="page-sidebar-hint">${hint}</p>
+        <div style="margin-top: 16px;">
+          <button type="button" class="btn btn-primary btn-size-1" id="btn-new-project" style="width: 100%;">Добавить проект</button>
+        </div>
+      `;
+    }
     initModal();
     initColorPicker();
     initProjectViewModal();
     const path = (location.hash || '#').replace('#', '').split('?')[0];
-    if (path === '/projects/create') openModal(null);
+    if (path === '/projects/create') {
+      if (typeof App !== 'undefined' && App.navigate) App.navigate('/projects');
+      requestAnimationFrame(() => openModal());
+    }
   }
 
   function renderList() {
@@ -646,11 +708,9 @@ const PageProjects = (() => {
       return;
     }
 
-    const current = State.get('project');
-
     el.innerHTML = `
       <div id="proj-cards-list" style="display:flex;flex-direction:column;gap:10px;">
-        ${projects.map(p => renderProjectCard(p, current)).join('')}
+        ${projects.map(p => renderProjectCard(p, null)).join('')}
       </div>`;
 
     initDragDrop();
@@ -695,16 +755,14 @@ const PageProjects = (() => {
 
         <!-- Действия -->
         <div class="proj-card-actions" style="display:flex;gap:4px;flex-shrink:0;">
-          <button class="btn-icon proj-settings-btn" data-id="${p.id}" title="Редактировать" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
-          <button type="button" class="btn-icon proj-team-btn" data-id="${p.id}" title="Команда" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);color:inherit;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg></button>
-          <button class="btn-icon proj-delete-btn" data-id="${p.id}" title="Удалить" style="width:34px;height:34px;border-radius:8px;background:rgba(252,63,29,0.07);border:1.5px solid rgba(252,63,29,0.2);color:var(--red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+          <button class="btn-icon proj-settings-btn" data-id="${p.id}" title="Настройки проекта"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+          <button class="btn-icon proj-delete-btn" data-id="${p.id}" title="Удалить проект"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
 
         <!-- Мобильные действия снизу -->
         <div class="sa-card-actions-bottom" style="width:100%;display:flex;gap:4px;padding-top:8px;border-top:1px solid var(--border);">
-          <button class="btn-icon proj-settings-btn" data-id="${p.id}" title="Редактировать" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
-          <button type="button" class="btn-icon proj-team-btn" data-id="${p.id}" title="Команда" style="width:34px;height:34px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);color:inherit;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg></button>
-          <button class="btn-icon proj-delete-btn" data-id="${p.id}" title="Удалить" style="width:34px;height:34px;border-radius:8px;background:rgba(252,63,29,0.07);border:1.5px solid rgba(252,63,29,0.2);color:var(--red);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+          <button class="btn-icon proj-settings-btn" data-id="${p.id}" title="Настройки проекта"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+          <button class="btn-icon proj-delete-btn" data-id="${p.id}" title="Удалить проект"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
 
       </div>`;
@@ -715,13 +773,10 @@ const PageProjects = (() => {
       btn.addEventListener('click', () => selectProject(btn.dataset.id));
     });
     document.querySelectorAll('.proj-settings-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => { e.stopPropagation(); openSettingsPanel(btn.dataset.id); });
+      btn.addEventListener('click', (e) => { e.stopPropagation(); openProjectView(btn.dataset.id); });
     });
     document.querySelectorAll('.proj-delete-btn').forEach(btn => {
       btn.addEventListener('click', (e) => { e.stopPropagation(); deleteProject(btn.dataset.id); });
-    });
-    document.querySelectorAll('.proj-team-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => e.stopPropagation());
     });
     document.querySelectorAll('#proj-cards-list > div[data-id]').forEach(card => {
       card.addEventListener('click', (e) => {
@@ -760,12 +815,16 @@ const PageProjects = (() => {
   }
 
   /**
-   * @param {{ title: string, text?: string, okLabel?: string }} opts
+   * Отработанное всплывающее окно: подтверждения (удаление и т.п.) и подсказки (например, что нужно хорошо настроить проект).
+   * Стили: .project-view-confirm-* в app.css.
+   * @param {{ title: string, text?: string, okLabel?: string, cancelLabel?: string, okBtnSize?: number }} opts
    */
   function projectViewConfirm(opts) {
     const title = typeof opts === 'string' ? opts : opts.title;
     const text = typeof opts === 'string' ? '' : (opts.text || '');
     const okLabel = (typeof opts === 'object' && opts.okLabel) ? opts.okLabel : 'Удалить';
+    const cancelLabel = (typeof opts === 'object' && opts.cancelLabel) ? opts.cancelLabel : 'Отмена';
+    const okBtnSize = (typeof opts === 'object' && opts.okBtnSize === 1) ? 'btn-size-1' : 'btn-size-2';
     return new Promise(resolve => {
       const overlay = document.createElement('div');
       overlay.className = 'project-view-confirm-backdrop';
@@ -774,8 +833,8 @@ const PageProjects = (() => {
           <div class="project-view-confirm-title">${title}</div>
           ${text ? `<div class="project-view-confirm-text">${text}</div>` : ''}
           <div class="project-view-confirm-actions">
-            <button type="button" class="btn btn-secondary btn-size-2" data-role="cancel">Отмена</button>
-            <button type="button" class="btn btn-danger btn-size-2" data-role="ok">${okLabel}</button>
+            <button type="button" class="btn btn-danger ${okBtnSize}" data-role="ok">${okLabel}</button>
+            <button type="button" class="btn btn-secondary btn-size-2" data-role="cancel">${cancelLabel}</button>
           </div>
         </div>
       `;
@@ -834,6 +893,8 @@ const PageProjects = (() => {
     document.querySelectorAll('.project-settings-nav-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.section === sectionId);
     });
+    const sidebar = document.getElementById('project-view-sidebar');
+    if (sidebar) sidebar.classList.remove('project-view-sidebar-expanded');
     if (sectionId === 'fields' && currentProjectViewId) {
       renderProjectViewChannels(currentProjectViewId);
     }
@@ -846,6 +907,9 @@ const PageProjects = (() => {
     }
     if (sectionId === 'templates' && currentProjectViewId) {
       loadProjectViewHashtagsConfig();
+    }
+    if (sectionId === 'watermark' && currentProjectViewId) {
+      loadProjectViewWatermark();
     }
   }
 
@@ -993,6 +1057,202 @@ const PageProjects = (() => {
     });
   }
 
+  function getProjectWatermarkBaseUrl() {
+    const base = (typeof API !== 'undefined' && API.baseURL) ? API.baseURL.replace(/\/api\/?$/, '') : '';
+    return base || '';
+  }
+
+  function loadProjectViewWatermark() {
+    if (!currentProjectViewId) return;
+    const p = projects.find(x => x.id == currentProjectViewId);
+    const thumbnailsEl = document.getElementById('project-view-watermark-thumbnails');
+    const dropHint = document.getElementById('project-view-watermark-drop-hint');
+    const positionEl = document.getElementById('project-view-watermark-position');
+    const opacityEl = document.getElementById('project-view-watermark-opacity');
+    const opacityValueEl = document.getElementById('project-view-watermark-opacity-value');
+    const sizeEl = document.getElementById('project-view-watermark-size');
+    const sizeValueEl = document.getElementById('project-view-watermark-size-value');
+    const fileInput = document.getElementById('project-view-watermark-file');
+    const deleteBtn = document.getElementById('project-view-watermark-delete');
+    if (!p || !positionEl || !opacityEl) return;
+    positionEl.value = p.watermark_position || 'bottom_right';
+    const opacity = Math.max(0, Math.min(100, parseInt(p.watermark_opacity, 10) || 80));
+    opacityEl.value = opacity;
+    if (opacityValueEl) opacityValueEl.textContent = opacity;
+    const size = Math.max(5, Math.min(200, parseInt(p.watermark_size, 10) || 100));
+    if (sizeEl) sizeEl.value = size;
+    if (sizeValueEl) sizeValueEl.textContent = size;
+    if (fileInput) fileInput.value = '';
+    if (p.watermark_image && thumbnailsEl && dropHint) {
+      var oldImg = thumbnailsEl.querySelector('img');
+      if (oldImg && oldImg.src && oldImg.src.startsWith('blob:')) URL.revokeObjectURL(oldImg.src);
+      dropHint.classList.add('hidden');
+      if (typeof API !== 'undefined' && API.getBlob) {
+        API.getBlob('/projects/' + currentProjectViewId + '/watermark/image').then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          thumbnailsEl.innerHTML = '<div class="posts-form-media-thumb"><img src="' + url + '" alt="Вотермарк"></div>';
+        }).catch(function () {
+          thumbnailsEl.innerHTML = '';
+          dropHint.classList.remove('hidden');
+        });
+      } else {
+        var fallbackUrl = (getProjectWatermarkBaseUrl() || '') + p.watermark_image;
+        thumbnailsEl.innerHTML = '<div class="posts-form-media-thumb"><img src="' + fallbackUrl + '" alt="Вотермарк"></div>';
+      }
+      if (deleteBtn) deleteBtn.style.display = '';
+    } else {
+      var oldImg = thumbnailsEl && thumbnailsEl.querySelector('img');
+      if (oldImg && oldImg.src && oldImg.src.startsWith('blob:')) URL.revokeObjectURL(oldImg.src);
+      if (thumbnailsEl) thumbnailsEl.innerHTML = '';
+      if (dropHint) dropHint.classList.remove('hidden');
+      if (deleteBtn) deleteBtn.style.display = 'none';
+    }
+  }
+
+  function initProjectViewWatermark() {
+    const fileInput = document.getElementById('project-view-watermark-file');
+    const uploadsZone = document.getElementById('project-view-watermark-uploads');
+    const thumbnailsEl = document.getElementById('project-view-watermark-thumbnails');
+    const dropHint = document.getElementById('project-view-watermark-drop-hint');
+    const sizeEl = document.getElementById('project-view-watermark-size');
+    const sizeValueEl = document.getElementById('project-view-watermark-size-value');
+    const opacityEl = document.getElementById('project-view-watermark-opacity');
+    const opacityValueEl = document.getElementById('project-view-watermark-opacity-value');
+    const saveBtn = document.getElementById('project-view-watermark-save');
+    const deleteBtn = document.getElementById('project-view-watermark-delete');
+    const sectionEl = document.getElementById('project-view-section-watermark');
+
+    function renderWatermarkThumb(objectUrl, withRemove) {
+      if (!thumbnailsEl || !dropHint) return;
+      if (objectUrl) {
+        dropHint.classList.add('hidden');
+        var removeHtml = withRemove ? '<button type="button" class="posts-form-media-remove project-view-watermark-remove" title="Удалить" aria-label="Удалить">&times;</button>' : '';
+        thumbnailsEl.innerHTML = '<div class="posts-form-media-thumb"><img src="' + objectUrl + '" alt="Вотермарк">' + removeHtml + '</div>';
+        if (withRemove) {
+          var btn = thumbnailsEl.querySelector('.posts-form-media-remove');
+          if (btn) btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (objectUrl && objectUrl.startsWith('blob:')) URL.revokeObjectURL(objectUrl);
+            if (fileInput) fileInput.value = '';
+            thumbnailsEl.innerHTML = '';
+            dropHint.classList.remove('hidden');
+          });
+        }
+      } else {
+        thumbnailsEl.innerHTML = '';
+        dropHint.classList.remove('hidden');
+      }
+    }
+
+    if (fileInput && uploadsZone && thumbnailsEl && dropHint) {
+      uploadsZone.addEventListener('click', function (e) {
+        if (e.target.closest('.posts-form-media-thumb') || e.target.closest('.posts-form-media-remove')) return;
+        fileInput.click();
+      });
+      uploadsZone.addEventListener('dragenter', function (e) {
+        e.preventDefault();
+        uploadsZone.classList.add('posts-form-media-uploads--dragover');
+      });
+      uploadsZone.addEventListener('dragover', function (e) {
+        e.preventDefault();
+      });
+      uploadsZone.addEventListener('dragleave', function (e) {
+        e.preventDefault();
+        if (!uploadsZone.contains(e.relatedTarget)) uploadsZone.classList.remove('posts-form-media-uploads--dragover');
+      });
+      uploadsZone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        uploadsZone.classList.remove('posts-form-media-uploads--dragover');
+        const file = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+          try { fileInput.files = e.dataTransfer.files; } catch (err) {}
+          renderWatermarkThumb(URL.createObjectURL(file), true);
+        }
+      });
+      fileInput.addEventListener('change', function () {
+        const file = fileInput.files && fileInput.files[0];
+        if (file) renderWatermarkThumb(URL.createObjectURL(file), true);
+        else renderWatermarkThumb(null);
+      });
+    }
+
+    if (sizeEl && sizeValueEl) {
+      sizeEl.addEventListener('input', function () { sizeValueEl.textContent = sizeEl.value; });
+    }
+    if (opacityEl && opacityValueEl) {
+      opacityEl.addEventListener('input', function () { opacityValueEl.textContent = opacityEl.value; });
+    }
+
+    function runWatermarkSave() {
+      if (!currentProjectViewId) return;
+      const positionEl = document.getElementById('project-view-watermark-position');
+      const opacityEl = document.getElementById('project-view-watermark-opacity');
+      const sizeEl = document.getElementById('project-view-watermark-size');
+      const fileInput = document.getElementById('project-view-watermark-file');
+      const position = (positionEl && positionEl.value) || 'bottom_right';
+      const opacity = Math.max(0, Math.min(100, parseInt(opacityEl && opacityEl.value, 10) || 80));
+      const size = Math.max(5, Math.min(200, parseInt(sizeEl && sizeEl.value, 10) || 100));
+      (async function() {
+        try {
+          if (fileInput && fileInput.files && fileInput.files[0]) {
+            const fd = new FormData();
+            fd.append('watermark', fileInput.files[0]);
+            await API.upload('/projects/' + currentProjectViewId + '/watermark', fd);
+            fileInput.value = '';
+          }
+          await API.put('/projects/' + currentProjectViewId + '/watermark', { position: position, opacity: opacity, size: size });
+          const res = await API.get('/projects/' + currentProjectViewId);
+          const proj = res.data && res.data.project;
+          if (proj) {
+            const idx = projects.findIndex(x => x.id == currentProjectViewId);
+            if (idx >= 0) {
+              projects[idx].watermark_image = proj.watermark_image;
+              projects[idx].watermark_position = proj.watermark_position;
+              projects[idx].watermark_opacity = proj.watermark_opacity;
+              projects[idx].watermark_size = proj.watermark_size;
+              projects[idx].watermark_added = !!proj.watermark_image;
+            }
+          }
+          updateProjectViewNavStatuses(projects.find(x => x.id == currentProjectViewId));
+          var delBtn = document.getElementById('project-view-watermark-delete');
+          if (delBtn && proj && proj.watermark_image) delBtn.style.display = '';
+          App.toast('Вотермарк сохранён', 'success');
+        } catch (e) {
+          App.toast(e.message || 'Ошибка', 'error');
+        }
+      })();
+    }
+    if (sectionEl) {
+      sectionEl.addEventListener('click', function (e) {
+        if (e.target.id === 'project-view-watermark-save' || (e.target.closest && e.target.closest('#project-view-watermark-save'))) runWatermarkSave();
+      });
+    } else if (saveBtn) {
+      saveBtn.addEventListener('click', runWatermarkSave);
+    }
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async function () {
+        if (!currentProjectViewId) return;
+        try {
+          await API.delete('/projects/' + currentProjectViewId + '/watermark');
+          const idx = projects.findIndex(x => x.id == currentProjectViewId);
+          if (idx >= 0) {
+            projects[idx].watermark_image = null;
+            projects[idx].watermark_position = 'bottom_right';
+            projects[idx].watermark_opacity = 80;
+            projects[idx].watermark_size = 100;
+            projects[idx].watermark_added = false;
+          }
+          loadProjectViewWatermark();
+          updateProjectViewNavStatuses(projects.find(x => x.id == currentProjectViewId));
+          App.toast('Вотермарк удалён', 'success');
+        } catch (e) {
+          App.toast(e.message || 'Ошибка', 'error');
+        }
+      });
+    }
+  }
+
   function initProjectViewUtm() {
     const hintIds = [
       'project-view-utm-campaign-hint',
@@ -1063,43 +1323,198 @@ const PageProjects = (() => {
     loadProjectViewSignature();
   }
 
-  let projectViewSignature = null;
+  let projectViewSignatures = [];
+  let projectViewEditingSignatureIndex = null;
   async function loadProjectViewSignature() {
     if (!currentProjectViewId) return;
     try {
       const res = await API.get('/projects/' + currentProjectViewId + '/signature');
-      projectViewSignature = res.data || { name: '', usage: 'manual', text: '' };
+      var list = (res.data && res.data.signatures) ? res.data.signatures : [];
+      projectViewSignatures = Array.isArray(list) ? list : [];
     } catch (e) {
-      projectViewSignature = { name: '', usage: 'manual', text: '' };
+      projectViewSignatures = [];
     }
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-    set('project-view-signature-name', projectViewSignature.name || '');
-    set('project-view-signature-usage', projectViewSignature.usage || 'manual');
-    set('project-view-signature-text', projectViewSignature.text || '');
+    projectViewEditingSignatureIndex = null;
     updateProjectViewSignaturePanel();
   }
 
   var signatureUsageLabels = { manual: 'Использовать эту подпись вручную', post_end: 'В конце каждого поста', comment_end: 'В конце каждого комментария' };
 
+  var signatureCaptionByUsage = { manual: 'Текущая подпись', post_end: 'Текущая подпись для постов', comment_end: 'Текущая подпись для комментариев' };
+  var signatureSectionTitles = { post_end: 'Текущие подписи для постов', comment_end: 'Текущие подписи для комментариев' };
+  var MAX_SIGNATURES_PER_USAGE = 5;
+
+  function countSignaturesByUsage(signatures, excludeIndex) {
+    var counts = { post_end: 0, comment_end: 0 };
+    signatures.forEach(function (s, i) {
+      if (i === excludeIndex) return;
+      var u = s.usage === 'comment_end' ? 'comment_end' : 'post_end';
+      counts[u] = (counts[u] || 0) + 1;
+    });
+    return counts;
+  }
+
+  function updateSignatureWhereSelect(editingIndex) {
+    var whereEl = document.getElementById('project-view-signature-where');
+    if (!whereEl) return;
+    var counts = countSignaturesByUsage(projectViewSignatures, editingIndex);
+    var opts = whereEl.querySelectorAll('option');
+    opts.forEach(function (opt) {
+      var val = opt.value;
+      if (val === 'post_end') opt.disabled = counts.post_end >= MAX_SIGNATURES_PER_USAGE;
+      else if (val === 'comment_end') opt.disabled = counts.comment_end >= MAX_SIGNATURES_PER_USAGE;
+    });
+    var current = whereEl.value;
+    if (whereEl.querySelector('option[value="' + current + '"]:not([disabled])')) return;
+    var first = whereEl.querySelector('option:not([disabled])');
+    if (first) whereEl.value = first.value;
+  }
+
   function updateProjectViewSignaturePanel() {
+    var emptyBlock = document.getElementById('project-view-signature-empty');
     var viewBlock = document.getElementById('project-view-signature-view');
     var addBlock = document.getElementById('project-view-signature-add');
     var displayEl = document.getElementById('project-view-signature-display');
+    var captionEl = document.getElementById('project-view-signature-caption');
     if (!viewBlock || !addBlock || !displayEl) return;
-    var s = projectViewSignature || {};
-    var hasSignature = !!(s.name || s.text);
+    var hasSignature = projectViewSignatures.length > 0;
     if (!hasSignature) {
-      addBlock.classList.remove('hidden');
+      if (emptyBlock) emptyBlock.classList.remove('hidden');
       viewBlock.classList.add('hidden');
+      addBlock.classList.add('hidden');
       return;
     }
+    if (emptyBlock) emptyBlock.classList.remove('hidden');
     addBlock.classList.add('hidden');
     viewBlock.classList.remove('hidden');
+    if (projectViewSignatures.length === 1) {
+      if (captionEl) captionEl.textContent = signatureCaptionByUsage[projectViewSignatures[0].usage] || 'Текущая подпись';
+    } else {
+      if (captionEl) captionEl.textContent = '';
+    }
+    function buildCards(indices) {
+      return indices.map(function (i) {
+        var s = projectViewSignatures[i];
+        var displayName = (s.name && s.name.trim()) ? s.name.trim() : ((s.text && s.text.trim()) ? s.text.trim() : 'Подпись');
+        var safeName = displayName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        var safeText = (s.text && s.text.trim()) ? s.text.trim().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
+        return '<div class="project-view-signature-card-row" data-index="' + i + '">' +
+          '<div class="project-view-signature-body">' +
+          '<div class="project-view-signature-name">' + safeName + '</div>' +
+          (safeText ? '<div class="project-view-signature-text">' + safeText + '</div>' : '') +
+          '</div>' +
+          '<div class="project-view-signature-actions">' +
+          '<button type="button" class="project-view-signature-edit btn-instr" data-index="' + i + '" title="Редактировать" aria-label="Редактировать"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>' +
+          '<button type="button" class="project-view-signature-delete btn-instr" data-index="' + i + '" title="Удалить" aria-label="Удалить"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></div>';
+      }).join('');
+    }
+    var postIndices = projectViewSignatures.map(function (s, i) { var u = s.usage || 'manual'; return (u === 'post_end' || u === 'manual') ? i : -1; }).filter(function (i) { return i >= 0; });
+    var commentIndices = projectViewSignatures.map(function (s, i) { return (s.usage || '') === 'comment_end' ? i : -1; }).filter(function (i) { return i >= 0; });
+    var bothSections = postIndices.length > 0 && commentIndices.length > 0;
+    function addInSectionHtml(where) {
+      return '<div class="project-view-signature-empty project-view-signature-add-in-section"><button type="button" class="project-view-signature-add-btn project-view-signature-add-in-section-btn" data-where="' + where + '" aria-label="Добавить подпись"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></button></div>';
+    }
     var parts = [];
-    if (s.name) parts.push('<div class="project-view-signature-row"><span class="project-view-signature-label">Название</span><span class="project-view-signature-value">' + (s.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</span></div>');
-    parts.push('<div class="project-view-signature-row"><span class="project-view-signature-label">Использование</span><span class="project-view-signature-value">' + (signatureUsageLabels[s.usage] || s.usage || '—') + '</span></div>');
-    if (s.text) parts.push('<div class="project-view-signature-row"><span class="project-view-signature-label">Подпись</span><span class="project-view-signature-value">' + (s.text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</span></div>');
-    displayEl.innerHTML = parts.length ? parts.join('') : '<div class="project-view-signature-value">—</div>';
+    if (projectViewSignatures.length === 1) {
+      displayEl.innerHTML = '<div class="project-view-signature-list">' + buildCards([0]) + '</div>';
+      if (emptyBlock) emptyBlock.classList.remove('hidden');
+    } else if (bothSections) {
+      if (emptyBlock) emptyBlock.classList.add('hidden');
+      if (postIndices.length) parts.push('<p class="project-view-hashtags-list-caption">' + signatureSectionTitles.post_end + '</p><div class="project-view-signature-list">' + buildCards(postIndices) + '</div>' + addInSectionHtml('post_end'));
+      if (commentIndices.length) parts.push('<p class="project-view-hashtags-list-caption">' + signatureSectionTitles.comment_end + '</p><div class="project-view-signature-list">' + buildCards(commentIndices) + '</div>' + addInSectionHtml('comment_end'));
+      displayEl.innerHTML = parts.join('');
+    } else {
+      if (postIndices.length) parts.push('<p class="project-view-hashtags-list-caption">' + signatureSectionTitles.post_end + '</p><div class="project-view-signature-list">' + buildCards(postIndices) + '</div>');
+      if (commentIndices.length) parts.push('<p class="project-view-hashtags-list-caption">' + signatureSectionTitles.comment_end + '</p><div class="project-view-signature-list">' + buildCards(commentIndices) + '</div>');
+      displayEl.innerHTML = parts.join('');
+      if (emptyBlock) emptyBlock.classList.remove('hidden');
+    }
+    displayEl.querySelectorAll('.project-view-signature-edit').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var i = parseInt(btn.getAttribute('data-index'), 10);
+        if (isNaN(i) || i < 0 || i >= projectViewSignatures.length) return;
+        projectViewEditingSignatureIndex = i;
+        var s = projectViewSignatures[i];
+        var set = function (id, val) { var el = document.getElementById(id); if (el) el.value = val; };
+        set('project-view-signature-name', s.name || '');
+        set('project-view-signature-usage', s.usage || 'manual');
+        set('project-view-signature-where', (s.usage === 'comment_end' || s.usage === 'post_end') ? s.usage : 'post_end');
+        set('project-view-signature-text', s.text || '');
+        viewBlock.classList.add('hidden');
+        if (emptyBlock) emptyBlock.classList.add('hidden');
+        addBlock.classList.remove('hidden');
+        updateSignatureWhereSelect(i);
+        updateHashtagsMainButton();
+        updateSignatureSaveWrapVisibility();
+      });
+    });
+    displayEl.querySelectorAll('.project-view-signature-delete').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!currentProjectViewId) return;
+        var i = parseInt(btn.getAttribute('data-index'), 10);
+        if (isNaN(i) || i < 0 || i >= projectViewSignatures.length) return;
+        var newList = projectViewSignatures.slice();
+        newList.splice(i, 1);
+        API.put('/projects/' + currentProjectViewId + '/signature', { signatures: newList }).then(function () {
+          projectViewSignatures = newList;
+          projectViewEditingSignatureIndex = null;
+          var templatesStatusEl = document.getElementById('project-nav-status-templates');
+          if (templatesStatusEl) {
+            var p = projects.find(function (x) { return x.id == currentProjectViewId; });
+            var totalTags = (p && p.hashtags_count) ? p.hashtags_count : 0;
+            templatesStatusEl.textContent = (totalTags > 0 || newList.length > 0) ? 'добавлены' : 'не добавлены';
+            templatesStatusEl.classList.toggle('is-set', totalTags > 0 || newList.length > 0);
+          }
+          updateProjectViewSignaturePanel();
+          updateHashtagsMainButton();
+          updateSignatureSaveWrapVisibility();
+          App.toast('Подпись удалена', 'success');
+        }).catch(function (e) { App.toast(e.message || 'Ошибка', 'error'); });
+      });
+    });
+    var counts = countSignaturesByUsage(projectViewSignatures, null);
+    var addBtn = document.getElementById('project-view-signature-add-btn');
+    if (addBtn) addBtn.disabled = counts.post_end >= MAX_SIGNATURES_PER_USAGE && counts.comment_end >= MAX_SIGNATURES_PER_USAGE;
+    displayEl.querySelectorAll('.project-view-signature-add-in-section-btn').forEach(function (btn) {
+      var where = btn.getAttribute('data-where') || 'post_end';
+      btn.disabled = (where === 'post_end' && counts.post_end >= MAX_SIGNATURES_PER_USAGE) || (where === 'comment_end' && counts.comment_end >= MAX_SIGNATURES_PER_USAGE);
+      btn.addEventListener('click', function () {
+        if (btn.disabled) return;
+        projectViewEditingSignatureIndex = null;
+        if (emptyBlock) emptyBlock.classList.add('hidden');
+        viewBlock.classList.add('hidden');
+        addBlock.classList.remove('hidden');
+        var set = function (id, val) { var el = document.getElementById(id); if (el) el.value = val; };
+        set('project-view-signature-name', '');
+        set('project-view-signature-text', '');
+        set('project-view-signature-where', where);
+        set('project-view-signature-usage', where === 'comment_end' ? 'comment_end' : 'post_end');
+        updateSignatureWhereSelect(null);
+        updateHashtagsMainButton();
+        updateSignatureSaveWrapVisibility();
+      });
+    });
+  }
+
+  function updateSignatureSaveWrapVisibility() {
+    var saveWrap = document.getElementById('project-view-hashtags-config-save') && document.getElementById('project-view-hashtags-config-save').closest('.project-view-save-wrap');
+    var signaturePanel = document.getElementById('project-view-hashtags-panel-signature');
+    var signatureAddBlock = document.getElementById('project-view-signature-add');
+    var closeBtn = document.getElementById('project-view-hashtags-config-close');
+    var postEditBlock = document.getElementById('project-view-hashtags-post-edit-block');
+    var commentEditBlock = document.getElementById('project-view-hashtags-comment-edit-block');
+    if (!saveWrap || !signaturePanel) return;
+    var isSignatureTab = !signaturePanel.classList.contains('hidden');
+    var signatureFormOpen = signatureAddBlock && !signatureAddBlock.classList.contains('hidden');
+    var postEditOpen = postEditBlock && postEditBlock.classList.contains('project-view-hashtags-edit-block-open');
+    var commentEditOpen = commentEditBlock && commentEditBlock.classList.contains('project-view-hashtags-edit-block-open');
+    var inAddOrEditMode = signatureFormOpen || postEditOpen || commentEditOpen;
+    if (closeBtn) closeBtn.style.display = inAddOrEditMode ? '' : 'none';
+    if (isSignatureTab && !signatureFormOpen) {
+      saveWrap.style.display = 'none';
+    } else {
+      saveWrap.style.display = '';
+    }
   }
 
   function fillProjectViewHashtagsConfigForm() {
@@ -1150,11 +1565,15 @@ const PageProjects = (() => {
     const signatureAddBlock = document.getElementById('project-view-signature-add');
     const isSignatureTab = signaturePanel && !signaturePanel.classList.contains('hidden');
     const signatureViewVisible = signatureViewBlock && !signatureViewBlock.classList.contains('hidden');
-    if ((isPostTab && postHasTags && !postEditOpen) || (isCommentTab && commentHasTags && !commentEditOpen) || (isSignatureTab && signatureViewVisible)) {
+    const signatureAddVisible = signatureAddBlock && !signatureAddBlock.classList.contains('hidden');
+    if (isSignatureTab && !signatureAddVisible) {
+      saveBtn.textContent = 'Сохранить';
+    } else if ((isPostTab && postHasTags && !postEditOpen) || (isCommentTab && commentHasTags && !commentEditOpen)) {
       saveBtn.textContent = 'Редактировать';
     } else {
       saveBtn.textContent = 'Сохранить';
     }
+    updateSignatureSaveWrapVisibility();
   }
 
   function parseHashtagsString(s) {
@@ -1181,7 +1600,7 @@ const PageProjects = (() => {
     if (editBlock) editBlock.classList.remove('project-view-hashtags-edit-block-open');
     listEl.innerHTML = tags.map(function (tag, i) {
       var safeTag = tag.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      return '<div class="project-view-hashtags-tag-item" draggable="true" data-index="' + i + '" role="button" tabindex="0" aria-label="Перетащите для изменения порядка"><span class="project-view-hashtags-tag-btn">:: #' + safeTag + '</span><button type="button" class="project-view-hashtags-tag-delete" data-tag="' + safeTag + '" title="Удалить" aria-label="Удалить"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>';
+      return '<div class="project-view-hashtags-tag-item" draggable="true" data-index="' + i + '" role="button" tabindex="0" aria-label="Перетащите для изменения порядка"><span class="project-view-hashtags-tag-btn"><span class="project-view-hashtags-drag-handle" aria-label="Перетащить"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4" cy="3" r="1.2" fill="currentColor"/><circle cx="4" cy="7" r="1.2" fill="currentColor"/><circle cx="4" cy="11" r="1.2" fill="currentColor"/><circle cx="10" cy="3" r="1.2" fill="currentColor"/><circle cx="10" cy="7" r="1.2" fill="currentColor"/><circle cx="10" cy="11" r="1.2" fill="currentColor"/></svg></span>#' + safeTag + '</span><button type="button" class="project-view-hashtags-tag-delete" data-tag="' + safeTag + '" title="Удалить" aria-label="Удалить"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>';
     }).join('');
     listEl.querySelectorAll('.project-view-hashtags-tag-delete').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
@@ -1273,7 +1692,7 @@ const PageProjects = (() => {
     if (editBlock) editBlock.classList.remove('project-view-hashtags-edit-block-open');
     listEl.innerHTML = tags.map(function (tag, i) {
       var safeTag = tag.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      return '<div class="project-view-hashtags-tag-item" draggable="true" data-index="' + i + '" role="button" tabindex="0" aria-label="Перетащите для изменения порядка"><span class="project-view-hashtags-tag-btn">:: #' + safeTag + '</span><button type="button" class="project-view-hashtags-tag-delete" data-tag="' + safeTag + '" title="Удалить" aria-label="Удалить"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>';
+      return '<div class="project-view-hashtags-tag-item" draggable="true" data-index="' + i + '" role="button" tabindex="0" aria-label="Перетащите для изменения порядка"><span class="project-view-hashtags-tag-btn"><span class="project-view-hashtags-drag-handle" aria-label="Перетащить"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4" cy="3" r="1.2" fill="currentColor"/><circle cx="4" cy="7" r="1.2" fill="currentColor"/><circle cx="4" cy="11" r="1.2" fill="currentColor"/><circle cx="10" cy="3" r="1.2" fill="currentColor"/><circle cx="10" cy="7" r="1.2" fill="currentColor"/><circle cx="10" cy="11" r="1.2" fill="currentColor"/></svg></span>#' + safeTag + '</span><button type="button" class="project-view-hashtags-tag-delete" data-tag="' + safeTag + '" title="Удалить" aria-label="Удалить"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>';
     }).join('');
     listEl.querySelectorAll('.project-view-hashtags-tag-delete').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
@@ -1352,6 +1771,15 @@ const PageProjects = (() => {
       input.style.setProperty('--hashtags-max-ch', String(Math.max(2, Math.min(4, len))));
     }
   function initProjectViewHashtags() {
+    var templatesTabDescriptions = {
+      post: 'Настройте хэштеги для постов проекта. Это поможет быстро вставлять их в текст нажатием одной кнопки. Вводите без символа #, через запятую или с новой строки.',
+      comment: 'Настройте хэштеги для комментариев проекта. Это поможет быстро вставлять их в комментарии нажатием одной кнопки. Вводите без символа #, через запятую или с новой строки.',
+      signature: 'Добавьте подписи для постов и комментариев. Это поможет вставлять их в нужное место в один клик. Вы можете настроить до 5 различных подписей для каждого раздела.'
+    };
+    function setTemplatesDescForTab(tab) {
+      var el = document.getElementById('project-view-templates-desc');
+      if (el && templatesTabDescriptions[tab]) el.textContent = templatesTabDescriptions[tab];
+    }
     const tabs = document.querySelectorAll('.project-view-hashtags-tab');
     const panels = document.querySelectorAll('.project-view-hashtags-panel');
     tabs.forEach(btn => {
@@ -1361,9 +1789,31 @@ const PageProjects = (() => {
         panels.forEach(p => {
           p.classList.toggle('hidden', p.id !== 'project-view-hashtags-panel-' + tab);
         });
+        setTemplatesDescForTab(tab);
         updateHashtagsMainButton();
+        updateSignatureSaveWrapVisibility();
       });
     });
+    const signatureAddBtn = document.getElementById('project-view-signature-add-btn');
+    const signatureEmptyBlock = document.getElementById('project-view-signature-empty');
+    const signatureViewBlock = document.getElementById('project-view-signature-view');
+    const signatureAddBlock = document.getElementById('project-view-signature-add');
+    if (signatureAddBtn && signatureEmptyBlock && signatureAddBlock) {
+      signatureAddBtn.addEventListener('click', () => {
+        projectViewEditingSignatureIndex = null;
+        signatureEmptyBlock.classList.add('hidden');
+        if (signatureViewBlock) signatureViewBlock.classList.add('hidden');
+        signatureAddBlock.classList.remove('hidden');
+        var set = function (id, val) { var el = document.getElementById(id); if (el) el.value = val; };
+        set('project-view-signature-name', '');
+        set('project-view-signature-text', '');
+        set('project-view-signature-where', 'post_end');
+        set('project-view-signature-usage', 'manual');
+        updateSignatureWhereSelect(null);
+        updateHashtagsMainButton();
+        updateSignatureSaveWrapVisibility();
+      });
+    }
     document.querySelectorAll('.project-view-hashtags-max-input').forEach(input => {
       updateHashtagsMaxInputWidth(input);
       input.addEventListener('input', () => updateHashtagsMaxInputWidth(input));
@@ -1384,6 +1834,34 @@ const PageProjects = (() => {
         updateHashtagsMaxInputWidth(input);
       });
     });
+    function closeTemplatesFormWithoutSave() {
+      const signaturePanel = document.getElementById('project-view-hashtags-panel-signature');
+      const signatureAddBlock = document.getElementById('project-view-signature-add');
+      const postEditBlock = document.getElementById('project-view-hashtags-post-edit-block');
+      const commentEditBlock = document.getElementById('project-view-hashtags-comment-edit-block');
+      const isSignatureTab = signaturePanel && !signaturePanel.classList.contains('hidden');
+      const signatureFormOpen = signatureAddBlock && !signatureAddBlock.classList.contains('hidden');
+      if (isSignatureTab && signatureFormOpen) {
+        projectViewEditingSignatureIndex = null;
+        signatureAddBlock.classList.add('hidden');
+        updateProjectViewSignaturePanel();
+        updateSignatureSaveWrapVisibility();
+        updateHashtagsMainButton();
+        return;
+      }
+      if (postEditBlock && postEditBlock.classList.contains('project-view-hashtags-edit-block-open')) {
+        postEditBlock.classList.remove('project-view-hashtags-edit-block-open');
+        updateHashtagsMainButton();
+        return;
+      }
+      if (commentEditBlock && commentEditBlock.classList.contains('project-view-hashtags-edit-block-open')) {
+        commentEditBlock.classList.remove('project-view-hashtags-edit-block-open');
+        updateHashtagsMainButton();
+        return;
+      }
+    }
+    const closeBtn = document.getElementById('project-view-hashtags-config-close');
+    if (closeBtn) closeBtn.addEventListener('click', closeTemplatesFormWithoutSave);
     const saveBtn = document.getElementById('project-view-hashtags-config-save');
     const postEditBlock = document.getElementById('project-view-hashtags-post-edit-block');
     if (saveBtn) {
@@ -1434,6 +1912,7 @@ const PageProjects = (() => {
           signatureViewBlock.classList.add('hidden');
           signatureAddBlock.classList.remove('hidden');
           updateHashtagsMainButton();
+          updateSignatureSaveWrapVisibility();
           return;
         }
         if (!currentProjectViewId) return;
@@ -1452,17 +1931,59 @@ const PageProjects = (() => {
           post: postPayload,
           comment: commentPayload
         };
-        const signaturePayload = { name: get('project-view-signature-name'), usage: get('project-view-signature-usage') || 'manual', text: get('project-view-signature-text') };
+        if (!(postPayload.hashtags || '').trim()) {
+          App.toast('Заполните хэштеги для постов', 'error');
+          return;
+        }
+        if (!(commentPayload.hashtags || '').trim()) {
+          App.toast('Заполните хэштеги для комментариев', 'error');
+          return;
+        }
+        const signatureFormOpen = signatureAddBlock && !signatureAddBlock.classList.contains('hidden');
+        var signaturesToSave = projectViewSignatures.slice();
+        if (signatureFormOpen) {
+          var signatureItem = { name: get('project-view-signature-name'), usage: get('project-view-signature-where') || 'post_end', text: get('project-view-signature-text') };
+          if (!(signatureItem.name || '').trim()) {
+            App.toast('Заполните название подписи', 'error');
+            return;
+          }
+          if (!(signatureItem.text || '').trim()) {
+            App.toast('Заполните текст подписи', 'error');
+            return;
+          }
+          if (projectViewEditingSignatureIndex !== null && projectViewEditingSignatureIndex >= 0 && projectViewEditingSignatureIndex < signaturesToSave.length) {
+            signaturesToSave[projectViewEditingSignatureIndex] = signatureItem;
+          } else {
+            signaturesToSave.push(signatureItem);
+          }
+          var afterCounts = { post_end: 0, comment_end: 0 };
+          signaturesToSave.forEach(function (s) {
+            var u = s.usage === 'comment_end' ? 'comment_end' : 'post_end';
+            afterCounts[u] = (afterCounts[u] || 0) + 1;
+          });
+          if (afterCounts.post_end > MAX_SIGNATURES_PER_USAGE || afterCounts.comment_end > MAX_SIGNATURES_PER_USAGE) {
+            App.toast('Максимум ' + MAX_SIGNATURES_PER_USAGE + ' подписи для постов и для комментариев', 'error');
+            return;
+          }
+        }
+        for (var si = 0; si < signaturesToSave.length; si++) {
+          var sig = signaturesToSave[si];
+          if (!(sig.name || '').trim() || !(sig.text || '').trim()) {
+            App.toast('У всех подписей должны быть заполнены название и текст', 'error');
+            return;
+          }
+        }
         try {
           await Promise.all([
             API.put('/projects/' + currentProjectViewId + '/hashtags/config', hashtagsPayload),
-            API.put('/projects/' + currentProjectViewId + '/signature', signaturePayload)
+            API.put('/projects/' + currentProjectViewId + '/signature', { signatures: signaturesToSave })
           ]);
           projectViewHashtagsConfig = { post: hashtagsPayload.post, comment: hashtagsPayload.comment };
-          projectViewSignature = signaturePayload;
+          projectViewSignatures = signaturesToSave;
+          projectViewEditingSignatureIndex = null;
           const p = projects.find(x => x.id == currentProjectViewId);
           const totalTags = (hashtagsPayload.post.hashtags || '').split(/[\s,]+/).filter(Boolean).length + (hashtagsPayload.comment.hashtags || '').split(/[\s,]+/).filter(Boolean).length;
-          const hasSignature = !!(signaturePayload.name || signaturePayload.text);
+          const hasSignature = projectViewSignatures.length > 0;
           if (p) {
             p.hashtags_count = totalTags;
             updateProjectViewNavStatuses(p);
@@ -1477,6 +1998,7 @@ const PageProjects = (() => {
           updateProjectViewHashtagsCommentPanel();
           updateProjectViewSignaturePanel();
           updateHashtagsMainButton();
+          updateSignatureSaveWrapVisibility();
           App.toast('Настройки шаблонов сохранены', 'success');
         } catch (e) {
           App.toast(e.message || 'Ошибка', 'error');
@@ -1605,14 +2127,49 @@ const PageProjects = (() => {
 
   const PROJECT_VIEW_COLORS = ['#6366f1','#22d3ee','#f59e0b','#4ade80','#f87171','#e879f9','#fb923c','#333f64','#fc3f1d'];
 
+  function renderProjectViewLogoThumb(logoUrl) {
+    const thumbnailsEl = document.getElementById('project-view-logo-thumbnails');
+    const dropHintEl = document.getElementById('project-view-logo-drop-hint');
+    const colorWrap = document.getElementById('project-view-color-wrap');
+    if (!thumbnailsEl || !dropHintEl) return;
+    if (logoUrl) {
+      thumbnailsEl.innerHTML = `
+        <div class="posts-form-media-thumb">
+          <img src="${logoUrl}" alt="">
+          <button type="button" class="posts-form-media-remove" aria-label="Удалить">×</button>
+        </div>`;
+      thumbnailsEl.querySelector('.posts-form-media-remove').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!currentProjectViewId) return;
+        API.delete(`/projects/${currentProjectViewId}/logo`).then(() => {
+          const p = projects.find(x => x.id == currentProjectViewId);
+          if (p) p.logo = null;
+          renderProjectViewLogoThumb(null);
+          if (colorWrap) colorWrap.style.display = '';
+          const avEl = document.getElementById('project-view-avatar');
+          if (avEl) {
+            avEl.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 6a2 2 0 012-2h3l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2V6z" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/></svg>`;
+            avEl.style.background = (p && p.color) || '#6366f1';
+            avEl.style.borderRadius = '10px';
+          }
+          App.toast('Логотип удалён', 'success');
+        }).catch(() => App.toast('Ошибка', 'error'));
+      });
+      dropHintEl.classList.add('hidden');
+      if (colorWrap) colorWrap.style.display = 'none';
+    } else {
+      thumbnailsEl.innerHTML = '';
+      dropHintEl.classList.remove('hidden');
+      if (colorWrap) colorWrap.style.display = '';
+    }
+  }
+
   function fillProjectViewGeneralForm(p) {
     if (!p) return;
-    const formAv = document.getElementById('project-view-form-avatar');
     const nameInp = document.getElementById('project-view-name');
     const descInp = document.getElementById('project-view-desc');
     const colorInp = document.getElementById('project-view-color');
     const colorWrap = document.getElementById('project-view-color-wrap');
-    const delBtn = document.getElementById('project-view-logo-delete');
     if (nameInp) nameInp.value = p.name || '';
     if (descInp) descInp.value = p.description || '';
     const color = p.color || '#6366f1';
@@ -1632,20 +2189,7 @@ const PageProjects = (() => {
       const sel = colorsEl.querySelector(`[data-color="${color}"]`);
       if (sel) sel.classList.add('selected');
     }
-    if (formAv) {
-      if (p.logo) {
-        formAv.innerHTML = `<img src="${p.logo}" alt="">`;
-        formAv.style.borderRadius = '50%';
-        if (delBtn) delBtn.style.display = '';
-        if (colorWrap) colorWrap.style.display = 'none';
-      } else {
-        formAv.innerHTML = `<svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M3 6a2 2 0 012-2h3l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2V6z" stroke="var(--muted)" stroke-width="1.5"/></svg>`;
-        formAv.style.borderRadius = '12px';
-        if (delBtn) delBtn.style.display = 'none';
-        if (colorWrap) colorWrap.style.display = '';
-      }
-    }
-    renderProjectViewTeamsList();
+    renderProjectViewLogoThumb(p.logo || null);
   }
 
   function fillProjectViewUtmForm(p) {
@@ -1693,56 +2237,77 @@ const PageProjects = (() => {
     if (backdrop) backdrop.addEventListener('click', closeProjectView);
     if (closeBtn) closeBtn.addEventListener('click', closeProjectView);
 
+    const sidebar = document.getElementById('project-view-sidebar');
+    const sidebarToggle = document.getElementById('project-view-sidebar-toggle');
+    if (sidebar && sidebarToggle) {
+      sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('project-view-sidebar-expanded');
+      });
+    }
+    const sidebarHeader = document.querySelector('.project-view-sidebar-header');
+    if (sidebarHeader && sidebar) {
+      sidebarHeader.addEventListener('click', (e) => {
+        if (e.target.closest('#project-view-sidebar-toggle')) return;
+        sidebar.classList.toggle('project-view-sidebar-expanded');
+      });
+    }
     document.querySelectorAll('.project-settings-nav-btn').forEach(btn => {
       btn.addEventListener('click', () => switchProjectViewSection(btn.dataset.section));
     });
 
     const logoInput = document.getElementById('project-view-logo-input');
-    const logoDelete = document.getElementById('project-view-logo-delete');
-    const formAvatar = document.getElementById('project-view-form-avatar');
+    const logoUploadsZone = document.getElementById('project-view-logo-uploads');
     const colorWrap = document.getElementById('project-view-color-wrap');
-    const teamEmpty = document.getElementById('project-view-team-empty');
-    if (logoInput) {
-      logoInput.addEventListener('change', async () => {
-        if (!logoInput.files[0] || !currentProjectViewId) return;
-        const fd = new FormData();
-        fd.append('logo', logoInput.files[0]);
-        try {
-          const res = await fetch(`/api/projects/${currentProjectViewId}/logo`, {
-            method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('sp_token') },
-            body: fd
-          });
-          const data = await res.json();
-          if (data.success && data.data && data.data.logo) {
-            const p = projects.find(x => x.id == currentProjectViewId);
-            if (p) p.logo = data.data.logo;
-            if (formAvatar) {
-              formAvatar.innerHTML = `<img src="${data.data.logo}" alt="">`;
-              formAvatar.style.borderRadius = '50%';
-            }
-            if (logoDelete) logoDelete.style.display = '';
-            if (colorWrap) colorWrap.style.display = 'none';
-            App.toast('Логотип загружен', 'success');
-          } else App.toast(data.message || 'Ошибка', 'error');
-        } catch (e) { App.toast('Ошибка загрузки', 'error'); }
+
+    async function doProjectViewLogoUpload(file) {
+      if (!file || !currentProjectViewId) return;
+      const fd = new FormData();
+      fd.append('logo', file);
+      try {
+        const res = await fetch(`/api/projects/${currentProjectViewId}/logo`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('sp_token') },
+          body: fd
+        });
+        const data = await res.json();
+        if (data.success && data.data && data.data.logo) {
+          const p = projects.find(x => x.id == currentProjectViewId);
+          if (p) p.logo = data.data.logo;
+          renderProjectViewLogoThumb(data.data.logo);
+          if (colorWrap) colorWrap.style.display = 'none';
+          const avEl = document.getElementById('project-view-avatar');
+          if (avEl) {
+            avEl.innerHTML = `<img src="${data.data.logo}" alt="">`;
+            avEl.style.borderRadius = '50%';
+          }
+          App.toast('Логотип загружен', 'success');
+        } else App.toast(data.message || 'Ошибка', 'error');
+      } catch (e) { App.toast('Ошибка загрузки', 'error'); }
+    }
+
+    if (logoUploadsZone) {
+      logoUploadsZone.addEventListener('click', (e) => {
+        if (e.target.closest('.posts-form-media-remove')) return;
+        if (logoInput) logoInput.click();
+      });
+      logoUploadsZone.addEventListener('dragenter', (e) => { e.preventDefault(); e.stopPropagation(); logoUploadsZone.classList.add('posts-form-media-uploads--dragover'); });
+      logoUploadsZone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); logoUploadsZone.classList.add('posts-form-media-uploads--dragover'); });
+      logoUploadsZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        if (!logoUploadsZone.contains(e.relatedTarget)) logoUploadsZone.classList.remove('posts-form-media-uploads--dragover');
+      });
+      logoUploadsZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        logoUploadsZone.classList.remove('posts-form-media-uploads--dragover');
+        const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file && file.type && file.type.match(/^image\/(jpeg|png|webp|gif)$/)) doProjectViewLogoUpload(file);
       });
     }
-    if (logoDelete) {
-      logoDelete.addEventListener('click', async () => {
-        if (!currentProjectViewId) return;
-        try {
-          await API.delete(`/projects/${currentProjectViewId}/logo`);
-          const p = projects.find(x => x.id == currentProjectViewId);
-          if (p) p.logo = null;
-          if (formAvatar) {
-            formAvatar.innerHTML = `<svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M3 6a2 2 0 012-2h3l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2V6z" stroke="var(--muted)" stroke-width="1.5"/></svg>`;
-            formAvatar.style.borderRadius = '12px';
-          }
-          logoDelete.style.display = 'none';
-          if (colorWrap) colorWrap.style.display = '';
-          App.toast('Логотип удалён', 'success');
-        } catch (e) { App.toast('Ошибка', 'error'); }
+    if (logoInput) {
+      logoInput.addEventListener('change', () => {
+        if (logoInput.files && logoInput.files[0]) doProjectViewLogoUpload(logoInput.files[0]);
+        logoInput.value = '';
       });
     }
 
@@ -1789,9 +2354,6 @@ const PageProjects = (() => {
     const createTeamBtn = document.getElementById('project-view-create-team-btn');
     if (createTeamBtn) {
       createTeamBtn.addEventListener('click', () => { /* пока без ссылки */ });
-      if (teamEmpty) {
-        teamEmpty.addEventListener('click', () => createTeamBtn.click());
-      }
     }
 
     const addAccountBtn = document.getElementById('project-view-add-account-btn');
@@ -1809,6 +2371,7 @@ const PageProjects = (() => {
     initProjectViewScheduleClear();
     initProjectViewUtm();
     initProjectViewHashtags();
+    initProjectViewWatermark();
   }
 
 
@@ -2231,24 +2794,27 @@ const PageProjects = (() => {
     });
   }
 
-  function openModal(id) {
-    const p = id ? projects.find(x => x.id == id) : null;
-    document.getElementById('proj-id').value    = p ? p.id : '';
-    document.getElementById('proj-name').value  = p ? p.name : '';
-    document.getElementById('proj-desc').value  = p ? (p.description || '') : '';
-    const color = p ? (p.color || '#6366f1') : '#6366f1';
-    document.getElementById('proj-color').value = color;
-    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
-    document.querySelector(`.color-dot[data-color="${color}"]`)?.classList.add('selected');
-    document.getElementById('project-modal-title').textContent = p ? 'Редактировать проект' : 'Новый проект';
-    document.getElementById('proj-submit').querySelector('.btn-text').textContent = p ? 'Сохранить' : 'Создать';
+  function openModal() {
+    const modal = document.getElementById('project-create-modal');
+    document.getElementById('proj-id').value = '';
+    document.getElementById('proj-name').value = '';
+    document.getElementById('proj-desc').value = '';
+    document.getElementById('proj-color').value = '#6366f1';
+    const projectForm = document.getElementById('project-form');
+    if (projectForm) {
+      projectForm.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+      projectForm.querySelector('.color-dot[data-color="#6366f1"]')?.classList.add('selected');
+    }
     document.getElementById('project-form-error').classList.add('hidden');
-    document.getElementById('project-modal').classList.remove('hidden');
+    modal.classList.add('project-create-modal--open');
+    modal.setAttribute('aria-hidden', 'false');
     document.getElementById('proj-name').focus();
   }
 
   function closeModal() {
-    document.getElementById('project-modal').classList.add('hidden');
+    const modal = document.getElementById('project-create-modal');
+    modal.classList.remove('project-create-modal--open');
+    modal.setAttribute('aria-hidden', 'true');
     const path = (location.hash || '#').replace('#', '').split('?')[0];
     if (path === '/projects/create' && typeof App !== 'undefined' && App.navigate) {
       App.navigate('/projects');
@@ -2257,9 +2823,9 @@ const PageProjects = (() => {
 
   function initModal() {
     const btnNew = document.getElementById('btn-new-project');
-    if (btnNew) btnNew.addEventListener('click', () => openModal(null));
+    if (btnNew) btnNew.addEventListener('click', () => openModal());
     const deskBtn = document.getElementById('btn-new-project-desk');
-    if (deskBtn) deskBtn.addEventListener('click', () => openModal(null));
+    if (deskBtn) deskBtn.addEventListener('click', () => openModal());
     document.getElementById('proj-panel-close').addEventListener('click', closeSettingsPanel);
     document.getElementById('proj-panel-cancel').addEventListener('click', closeSettingsPanel);
     document.getElementById('proj-utm-open-btn').addEventListener('click', openUtmPanel);
@@ -2301,12 +2867,11 @@ const PageProjects = (() => {
     document.getElementById('proj-settings-overlay').addEventListener('click', closeSettingsPanel);
     document.getElementById('modal-close').addEventListener('click', closeModal);
     document.getElementById('modal-cancel').addEventListener('click', closeModal);
-    document.getElementById('modal-backdrop').addEventListener('click', closeModal);
+    document.getElementById('project-create-backdrop').addEventListener('click', closeModal);
 
     document.getElementById('project-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const errEl  = document.getElementById('project-form-error');
-      const id     = document.getElementById('proj-id').value;
       const name   = document.getElementById('proj-name').value.trim();
       const desc   = document.getElementById('proj-desc').value.trim();
       const color  = document.getElementById('proj-color').value;
@@ -2326,23 +2891,15 @@ const PageProjects = (() => {
       errEl.classList.add('hidden');
 
       try {
-        if (id) {
-          const res = await API.put(`/projects/${id}`, { name, description: desc, color });
-          const updated = (res.data && res.data.project) || res.project;
-          const idx = projects.findIndex(p => p.id == id);
-          if (idx !== -1) projects[idx] = updated;
-          // Обновляем выбранный проект если это он
-          const current = State.get('project');
-          if (current && current.id == id) State.setProject(updated);
-          App.toast('Проект обновлён', 'success');
-        } else {
-          const res = await API.post('/projects', { name, description: desc, color });
-          const created = (res.data && res.data.project) || res.project;
-          projects.unshift(created);
-          App.toast('Проект создан', 'success');
-        }
+        const res = await API.post('/projects', { name, description: desc, color });
+        const created = (res.data && res.data.project) || res.project;
+        if (!created.hashtags_count) created.hashtags_count = 0;
+        if (created.watermark_added === undefined) created.watermark_added = !!(created.watermark_image);
+        projects.unshift(created);
         closeModal();
         renderList();
+        App.toast('Проект создан', 'success');
+        openProjectView(created.id);
       } catch (err) {
         errEl.textContent = err.message;
         errEl.classList.remove('hidden');
@@ -2356,19 +2913,29 @@ const PageProjects = (() => {
 
   function initColorPicker() {
     const defaultColor = '#6366f1';
-    document.querySelector(`.color-dot[data-color="${defaultColor}"]`)?.classList.add('selected');
-    document.querySelectorAll('.color-dot').forEach(dot => {
+    const form = document.getElementById('project-form');
+    if (form) {
+      form.querySelector(`.color-dot[data-color="${defaultColor}"]`)?.classList.add('selected');
+      form.querySelectorAll('.color-dot').forEach(dot => {
       dot.addEventListener('click', () => {
-        document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+          form.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
         dot.classList.add('selected');
         document.getElementById('proj-color').value = dot.dataset.color;
       });
     });
+    }
   }
 
   async function deleteProject(id) {
     const p = projects.find(x => x.id == id);
-    if (!confirm(`Удалить проект «${p ? p.name : id}»?`)) return;
+    const projectName = p ? p.name : id;
+    const ok = await projectViewConfirm({
+      title: `УДАЛИТЬ ПРОЕКТ «${projectName}»?`,
+      text: 'Обратите внимание, что это действие необратимо! Вы уверены, что хотите насовсем удалить этот проект?',
+      cancelLabel: 'Не удалять',
+      okLabel: 'Я уверен(а)!'
+    });
+    if (!ok) return;
     try {
       await API.delete(`/projects/${id}`);
       projects = projects.filter(x => x.id != id);

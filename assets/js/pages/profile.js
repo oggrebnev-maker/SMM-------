@@ -5,6 +5,16 @@ const PageProfile = (() => {
 
   function render() {
     const container = document.getElementById('page-container');
+    const sidebarEl = document.getElementById('page-sidebar');
+    if (sidebarEl) {
+      const ps = (typeof State !== 'undefined' && State.get) ? (State.get('publicSettings') || {}) : {};
+      const title = ps.sidebar_profile_title || 'Профиль' || 'Новый заголовок';
+      const hint  = ps.sidebar_profile_hint  || 'Личные данные, аватар и привязка входа через соцсети. Изменения сохраняются в вашем аккаунте.' || 'Lorem...';
+      sidebarEl.innerHTML = `
+        <h3 class="page-sidebar-title page-sidebar-title--large">${title}</h3>
+        <p class="page-sidebar-hint">${hint}</p>
+      `;
+    }
     container.innerHTML = `
       <div class="page-header">
         <h1 class="page-title">Профиль</h1>

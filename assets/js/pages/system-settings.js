@@ -22,6 +22,16 @@ const PageSystemSettings = (() => {
       return;
     }
 
+    const sidebarEl = document.getElementById('page-sidebar');
+    if (sidebarEl) {
+      const ps = (typeof State !== 'undefined' && State.get) ? (State.get('publicSettings') || {}) : {};
+      const title = ps.sidebar_system_settings_title || 'Настройки системы' || 'Новый заголовок';
+      const hint  = ps.sidebar_system_settings_hint  || 'Управление основными параметрами сайта, почтой, пользователями и доступными соцсетями. Доступно администраторам.' || 'Lorem...';
+      sidebarEl.innerHTML = `
+        <h3 class="page-sidebar-title page-sidebar-title--large">${title}</h3>
+        <p class="page-sidebar-hint">${hint}</p>
+      `;
+    }
     container.innerHTML = `
       <div class="page-header">
         <div>
@@ -35,6 +45,7 @@ const PageSystemSettings = (() => {
         <button class="ss-tab ${currentTab === 'mail'      ? 'ss-tab--active' : ''}" data-tab="mail">Почта</button>
         <button class="ss-tab ${currentTab === 'users'     ? 'ss-tab--active' : ''}" data-tab="users">Пользователи</button>
         <button class="ss-tab ${currentTab === 'platforms' ? 'ss-tab--active' : ''}" data-tab="platforms">Соцсети</button>
+        <button class="ss-tab ${currentTab === 'sidebars'  ? 'ss-tab--active' : ''}" data-tab="sidebars">Сайдбары</button>
       </div>
 
       <div class="profile-layout" id="ss-content">
@@ -62,7 +73,130 @@ const PageSystemSettings = (() => {
     if (tab === 'mail')      return renderMail(settings);
     if (tab === 'users')     return renderUsersTab(users);
     if (tab === 'platforms') return renderPlatformsTab();
+    if (tab === 'sidebars')  return renderSidebarsTab(settings);
     return '';
+  }
+
+  // Порядок и названия — как в левом меню слева
+  const SIDEBAR_PAGES = [
+    {
+      id: 'dashboard',
+      label: 'Дашборд',
+      titleKey: 'sidebar_dashboard_title',
+      hintKey:  'sidebar_dashboard_hint',
+      defaultTitle: 'Дашборд',
+      defaultHint:  'Здесь отображаются сводные показатели по выбранному проекту: количество постов, запланированные публикации, черновики и охват. Выберите проект в шапке страницы.',
+    },
+    {
+      id: 'posts',
+      label: 'Контент',
+      titleKey: 'sidebar_posts_title',
+      hintKey:  'sidebar_posts_hint',
+      defaultTitle: 'Контент',
+      defaultHint:  'Здесь вы работаете с постами и контентом для публикаций по выбранным проектам.',
+    },
+    {
+      id: 'analytics',
+      label: 'Аналитика',
+      titleKey: 'sidebar_analytics_title',
+      hintKey:  'sidebar_analytics_hint',
+      defaultTitle: 'Аналитика',
+      defaultHint:  'Раздел аналитики по проектам и аккаунтам. Здесь будут собираться ключевые метрики и отчёты.',
+    },
+    {
+      id: 'templates',
+      label: 'Шаблоны',
+      titleKey: 'sidebar_templates_title',
+      hintKey:  'sidebar_templates_hint',
+      defaultTitle: 'Шаблоны',
+      defaultHint:  'Шаблоны визуалов и материалов для постов. Помогают ускорить подготовку контента.',
+    },
+    {
+      id: 'projects',
+      label: 'Проекты',
+      titleKey: 'sidebar_projects_title',
+      hintKey:  'sidebar_projects_hint',
+      defaultTitle: 'Проекты',
+      defaultHint:  'Проекты — это рабочее пространство, где настраиваются все основные параметры для ведения социальных сетей бренда или клиента. Здесь создается полноценный контент-план, задаются базовые настройки публикаций, шаблоны и другие параметры, которые используются при создании материалов.',
+    },
+    {
+      id: 'accounts',
+      label: 'Аккаунты',
+      titleKey: 'sidebar_social_accounts_title',
+      hintKey:  'sidebar_social_accounts_hint',
+      defaultTitle: 'Аккаунты',
+      defaultHint:  'Подключённые аккаунты социальных сетей, в которые можно публиковать посты, отвечать на сообщения и комментарии, а также просматривать аналитику. Выберите платформу ниже, чтобы подключить аккаунт.',
+    },
+    {
+      id: 'team',
+      label: 'Команды',
+      titleKey: 'sidebar_team_title',
+      hintKey:  'sidebar_team_hint',
+      defaultTitle: 'Команды',
+      defaultHint:  'Совместная работа над проектами: участники, роли и доступы.',
+    },
+    {
+      id: 'ai-assistant',
+      label: 'ИИ Ассистент',
+      titleKey: 'sidebar_ai_assistant_title',
+      hintKey:  'sidebar_ai_assistant_hint',
+      defaultTitle: 'ИИ Ассистент',
+      defaultHint:  'Помощник на базе ИИ для генерации идей, текстов и контент-планов.',
+    },
+    // Дополнительные служебные страницы с правым сайдбаром
+    {
+      id: 'schedule',
+      label: 'Расписание публикаций',
+      titleKey: 'sidebar_publish_schedule_title',
+      hintKey:  'sidebar_publish_schedule_hint',
+      defaultTitle: 'Расписание публикаций',
+      defaultHint:  'Укажите время публикации постов проекта по умолчанию. Это упростит создание материалов. Выберите проект и добавьте слоты по дням недели.',
+    },
+    {
+      id: 'profile',
+      label: 'Профиль',
+      titleKey: 'sidebar_profile_title',
+      hintKey:  'sidebar_profile_hint',
+      defaultTitle: 'Профиль',
+      defaultHint:  'Личные данные, аватар и привязка входа через соцсети. Изменения сохраняются в вашем аккаунте.',
+    },
+    {
+      id: 'system-settings',
+      label: 'Настройки системы',
+      titleKey: 'sidebar_system_settings_title',
+      hintKey:  'sidebar_system_settings_hint',
+      defaultTitle: 'Настройки системы',
+      defaultHint:  'Управление основными параметрами сайта, почтой, пользователями и доступными соцсетями. Доступно администраторам.',
+    },
+  ];
+
+  function renderSidebarsTab(settings) {
+    const currentId = SIDEBAR_PAGES[0].id;
+    const page = SIDEBAR_PAGES.find(p => p.id === currentId) || SIDEBAR_PAGES[0];
+    const titleVal = settings[page.titleKey] || page.defaultTitle || 'Новый заголовок';
+    const hintVal  = settings[page.hintKey]  || page.defaultHint  || 'Lorem...';
+    return `
+      <div class="profile-card">
+        <div class="profile-card-title">Сайдбары страниц</div>
+        <div class="profile-form">
+          <div class="form-group">
+            <label>Страница</label>
+            <select id="ss-sidebar-page">
+              ${SIDEBAR_PAGES.map(p => `<option value="${p.id}">${p.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Заголовок</label>
+            <input type="text" id="ss-sidebar-title" value="${titleVal}">
+          </div>
+          <div class="form-group">
+            <label>Текст</label>
+            <textarea id="ss-sidebar-hint" rows="4" style="resize:vertical;">${hintVal}</textarea>
+          </div>
+          <button class="btn btn-primary btn-size-1" id="ss-sidebar-save-btn">Сохранить</button>
+        </div>
+      </div>
+    `;
   }
 
   // ── Platforms tab ──────────────────────────────────────────────
@@ -532,6 +666,55 @@ const PageSystemSettings = (() => {
   function bindEvents(settings, users) {
     if (currentTab === 'platforms') {
       bindPlatformEvents();
+      return;
+    }
+
+    if (currentTab === 'sidebars') {
+      const pageSelect = document.getElementById('ss-sidebar-page');
+      const titleInput = document.getElementById('ss-sidebar-title');
+      const hintInput  = document.getElementById('ss-sidebar-hint');
+      const saveBtn    = document.getElementById('ss-sidebar-save-btn');
+
+      if (pageSelect && titleInput && hintInput) {
+        // смена страницы в выпадающем списке
+        pageSelect.addEventListener('change', () => {
+          const page = SIDEBAR_PAGES.find(p => p.id === pageSelect.value) || SIDEBAR_PAGES[0];
+          const t = settings[page.titleKey] || page.defaultTitle || 'Новый заголовок';
+          const h = settings[page.hintKey]  || page.defaultHint  || 'Lorem...';
+          titleInput.value = t;
+          hintInput.value  = h;
+        });
+      }
+
+      if (saveBtn && pageSelect && titleInput && hintInput) {
+        saveBtn.addEventListener('click', async () => {
+          const page = SIDEBAR_PAGES.find(p => p.id === pageSelect.value) || SIDEBAR_PAGES[0];
+          const payload = {};
+          payload[page.titleKey] = titleInput.value.trim();
+          payload[page.hintKey]  = hintInput.value.trim();
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Сохранение...';
+          try {
+            await API.put('/system-settings', payload);
+            settings[page.titleKey] = payload[page.titleKey];
+            settings[page.hintKey]  = payload[page.hintKey];
+            // заново загружаем публичные настройки с сервера и кладём в State — тогда на сайте сразу подставится новый текст
+            const psRes = await API.get('/system-settings/public');
+            const s = (psRes.data && psRes.data.settings) || psRes.settings || {};
+            if (typeof State !== 'undefined' && State.set) {
+              State.set('publicSettings', s);
+            }
+            App.toast('Тексты сайдбара сохранены', 'success');
+          } catch (e) {
+            App.toast(e.message || 'Ошибка сохранения', 'error');
+          } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Сохранить';
+          }
+        });
+      }
+
+      // для вкладки sidebars больше ничего не делаем
       return;
     }
 

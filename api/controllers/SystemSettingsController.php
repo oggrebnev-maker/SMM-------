@@ -27,11 +27,27 @@ class SystemSettingsController {
         AuthMiddleware::requireRole('admin');
 
         $data = json_decode(file_get_contents('php://input'), true);
+        // Разрешённые ключи настроек. Всё остальное игнорируется.
+        // Сюда добавлены тексты сайдбаров разделов (sidebar_*), чтобы их можно было редактировать из админки.
         $allowed = [
             'site_name', 'registration_enabled',
             'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass',
             'smtp_from', 'smtp_from_name',
-            'email_verify_subject', 'email_verify_template'
+            'email_verify_subject', 'email_verify_template',
+
+            // Сайдбары страниц (заголовок + текст)
+            'sidebar_dashboard_title',        'sidebar_dashboard_hint',
+            'sidebar_projects_title',         'sidebar_projects_hint',
+            'sidebar_social_accounts_title',  'sidebar_social_accounts_hint',
+            'sidebar_publish_schedule_title', 'sidebar_publish_schedule_hint',
+            'sidebar_profile_title',          'sidebar_profile_hint',
+            'sidebar_system_settings_title',  'sidebar_system_settings_hint',
+            // Дополнительные разделы навигации (Контент, Аналитика и т.д.)
+            'sidebar_posts_title',            'sidebar_posts_hint',
+            'sidebar_analytics_title',        'sidebar_analytics_hint',
+            'sidebar_templates_title',        'sidebar_templates_hint',
+            'sidebar_team_title',             'sidebar_team_hint',
+            'sidebar_ai_assistant_title',     'sidebar_ai_assistant_hint',
         ];
 
         foreach ($allowed as $key) {
@@ -88,7 +104,26 @@ class SystemSettingsController {
 
     // GET /api/system-settings/public — без авторизации (для фронта)
     public function getPublicSettings() {
-        $keys = ['site_name', 'registration_enabled', 'favicon'];
+        // Публичные настройки, которые нужны фронтенду без авторизации
+        $keys = [
+            'site_name',
+            'registration_enabled',
+            'favicon',
+
+            // Тексты сайдбаров
+            'sidebar_dashboard_title',        'sidebar_dashboard_hint',
+            'sidebar_projects_title',         'sidebar_projects_hint',
+            'sidebar_social_accounts_title',  'sidebar_social_accounts_hint',
+            'sidebar_publish_schedule_title', 'sidebar_publish_schedule_hint',
+            'sidebar_profile_title',          'sidebar_profile_hint',
+            'sidebar_system_settings_title',  'sidebar_system_settings_hint',
+            // Дополнительные разделы навигации
+            'sidebar_posts_title',            'sidebar_posts_hint',
+            'sidebar_analytics_title',        'sidebar_analytics_hint',
+            'sidebar_templates_title',        'sidebar_templates_hint',
+            'sidebar_team_title',             'sidebar_team_hint',
+            'sidebar_ai_assistant_title',     'sidebar_ai_assistant_hint',
+        ];
         $placeholders = implode(',', array_fill(0, count($keys), '?'));
         $stmt = $this->db->prepare(
             "SELECT `key`, `value` FROM system_settings WHERE `key` IN ($placeholders)"

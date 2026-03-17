@@ -53,6 +53,11 @@ class ProjectController {
             }
         }
 
+        foreach ($projects as &$row) {
+            $row['watermark_added'] = !empty($row['watermark_image']);
+        }
+        unset($row);
+
         Response::success(['projects' => $projects]);
     }
 
@@ -102,6 +107,7 @@ class ProjectController {
         $user = AuthMiddleware::handle();
         $project = $this->getAccessibleProject($id, $user['id']);
         if (!$project) { Response::notFound('Проект не найден'); return; }
+        $project['watermark_added'] = !empty($project['watermark_image']);
         Response::success(['project' => $project]);
     }
 
@@ -184,6 +190,85 @@ class ProjectController {
         Response::success([]);
     }
 
+    // POST /projects/{id}/watermark — загрузка изображения вотермарка
+    public function uploadWatermark(int $id): void {
+        $user = AuthMiddleware::handle();
+        $project = $this->getAccessibleProject($id, $user['id']);
+        if (!$project) { Response::notFound('Проект не найден'); return; }
+
+        if (empty($_FILES['watermark'])) { Response::error('Файл не передан', 422); return; }
+        $file = $_FILES['watermark'];
+        $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg','jpeg','png','webp','gif'])) {
+            Response::error('Недопустимый формат. Допустимы: JPG, PNG, WebP, GIF', 422); return;
+        }
+        $uploadDir = dirname(__DIR__, 2) . '/uploads/projects/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+        if (!empty($project['watermark_image'])) {
+            $old = dirname(__DIR__, 2) . '/' . ltrim($project['watermark_image'], '/');
+            if (file_exists($old)) unlink($old);
+        }
+        $filename = 'watermark_' . $id . '_' . time() . '.' . $ext;
+        move_uploaded_file($file['tmp_name'], $uploadDir . $filename);
+        $path = '/uploads/projects/' . $filename;
+        $stmt = $this->db->prepare("UPDATE projects SET watermark_image=:img, updated_at=NOW() WHERE id=:id");
+        $stmt->execute([':img' => $path, ':id' => $id]);
+        $stmt2 = $this->db->prepare("SELECT id, watermark_image FROM projects WHERE id=:id");
+        $stmt2->execute([':id' => $id]);
+        Response::success(['watermark' => $stmt2->fetch(PDO::FETCH_ASSOC)]);
+    }
+
+    // PUT /projects/{id}/watermark — позиция, прозрачность, размер
+    public function updateWatermark(int $id): void {
+        $user = AuthMiddleware::handle();
+        $project = $this->getAccessibleProject($id, $user['id']);
+        if (!$project) { Response::notFound('Проект не найден'); return; }
+
+        $body = json_decode(file_get_contents('php://input'), true) ?? [];
+        $position = isset($body['position']) ? trim($body['position']) : ($project['watermark_position'] ?? 'bottom_right');
+        $opacity = isset($body['opacity']) ? (int) $body['opacity'] : (int) ($project['watermark_opacity'] ?? 80);
+        $opacity = max(0, min(100, $opacity));
+        $size = isset($body['size']) ? (int) $body['size'] : (int) ($project['watermark_size'] ?? 100);
+        $size = max(5, min(200, $size));
+        $allowedPositions = ['top_left','top_right','bottom_left','bottom_right','center'];
+        if (!in_array($position, $allowedPositions)) $position = 'bottom_right';
+
+        $stmt = $this->db->prepare("UPDATE projects SET watermark_position=:pos, watermark_opacity=:op, watermark_size=:size, updated_at=NOW() WHERE id=:id");
+        $stmt->execute([':pos' => $position, ':op' => $opacity, ':size' => $size, ':id' => $id]);
+        $stmt2 = $this->db->prepare("SELECT id, watermark_image, watermark_position, watermark_opacity, watermark_size FROM projects WHERE id=:id");
+        $stmt2->execute([':id' => $id]);
+        Response::success(['watermark' => $stmt2->fetch(PDO::FETCH_ASSOC)]);
+    }
+
+    // GET /projects/{id}/watermark/image — отдача файла вотермарка (для превью)
+    public function getWatermarkImage(int $id): void {
+        $user = AuthMiddleware::handle();
+        $project = $this->getAccessibleProject($id, $user['id']);
+        if (!$project || empty($project['watermark_image'])) { Response::notFound('Изображение не найдено'); return; }
+        $path = dirname(__DIR__, 2) . '/' . ltrim($project['watermark_image'], '/');
+        if (!is_file($path)) { Response::notFound('Файл не найден'); return; }
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $mimes = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif', 'webp' => 'image/webp'];
+        header('Content-Type: ' . ($mimes[$ext] ?? 'application/octet-stream'));
+        header('Cache-Control: private, max-age=300');
+        readfile($path);
+        exit;
+    }
+
+    // DELETE /projects/{id}/watermark
+    public function deleteWatermark(int $id): void {
+        $user = AuthMiddleware::handle();
+        $project = $this->getAccessibleProject($id, $user['id']);
+        if (!$project) { Response::notFound('Проект не найден'); return; }
+        if (!empty($project['watermark_image'])) {
+            $old = dirname(__DIR__, 2) . '/' . ltrim($project['watermark_image'], '/');
+            if (file_exists($old)) unlink($old);
+        }
+        $stmt = $this->db->prepare("UPDATE projects SET watermark_image=NULL, updated_at=NOW() WHERE id=:id");
+        $stmt->execute([':id' => $id]);
+        Response::success([]);
+    }
+
     private function getAccessibleProject(int $id, int $uid): ?array {
         $params = [':id'=>$id, ':uid'=>$uid, ':uid2'=>$uid];
         $sqlWith = "SELECT p.*, (SELECT COUNT(*) FROM project_hashtags ph WHERE ph.project_id = p.id) AS hashtags_count
@@ -208,32 +293,55 @@ class ProjectController {
         return $row ?: null;
     }
 
-    // GET /projects/{id}/signature
+    // GET /projects/{id}/signature — возвращает массив подписей
     public function getSignature(int $id): void {
         $user = AuthMiddleware::handle();
         $project = $this->getAccessibleProject($id, $user['id']);
         if (!$project) { Response::notFound('Проект не найден'); return; }
         $raw = isset($project['signature_settings']) ? $project['signature_settings'] : null;
-        $data = is_string($raw) ? (json_decode($raw, true) ?: []) : (is_array($raw) ? $raw : []);
-        Response::success([
-            'name'  => $data['name'] ?? '',
-            'usage' => $data['usage'] ?? 'manual',
-            'text'  => $data['text'] ?? '',
-        ]);
+        $decoded = is_string($raw) ? (json_decode($raw, true) ?: []) : (is_array($raw) ? $raw : []);
+        if (isset($decoded['name']) || isset($decoded['usage']) || isset($decoded['text'])) {
+            $decoded = [$decoded];
+        }
+        if (!is_array($decoded)) {
+            $decoded = [];
+        }
+        $signatures = [];
+        foreach ($decoded as $item) {
+            if (!is_array($item)) continue;
+            $signatures[] = [
+                'name'  => trim((string)($item['name'] ?? '')),
+                'usage' => in_array($item['usage'] ?? '', ['manual', 'post_end', 'comment_end']) ? $item['usage'] : 'manual',
+                'text'  => trim((string)($item['text'] ?? '')),
+            ];
+        }
+        Response::success(['signatures' => $signatures]);
     }
 
-    // PUT /projects/{id}/signature
+    // PUT /projects/{id}/signature — принимает { signatures: [ { name, usage, text }, ... ] }
     public function putSignature(int $id): void {
         $user = AuthMiddleware::handle();
         $project = $this->getAccessibleProject($id, $user['id']);
         if (!$project) { Response::notFound('Проект не найден'); return; }
         $body = json_decode(file_get_contents('php://input'), true) ?? [];
-        $data = [
-            'name'  => trim((string)($body['name'] ?? '')),
-            'usage' => in_array($body['usage'] ?? '', ['manual', 'post_end', 'comment_end']) ? $body['usage'] : 'manual',
-            'text'  => trim((string)($body['text'] ?? '')),
-        ];
-        $json = json_encode($data, JSON_UNESCAPED_UNICODE);
+        $list = $body['signatures'] ?? null;
+        if (!is_array($list)) {
+            if (isset($body['name']) || isset($body['usage']) || isset($body['text'])) {
+                $list = [['name' => $body['name'] ?? '', 'usage' => $body['usage'] ?? 'manual', 'text' => $body['text'] ?? '']];
+            } else {
+                $list = [];
+            }
+        }
+        $signatures = [];
+        foreach ($list as $item) {
+            if (!is_array($item)) continue;
+            $signatures[] = [
+                'name'  => trim((string)($item['name'] ?? '')),
+                'usage' => in_array($item['usage'] ?? '', ['manual', 'post_end', 'comment_end']) ? $item['usage'] : 'manual',
+                'text'  => trim((string)($item['text'] ?? '')),
+            ];
+        }
+        $json = json_encode($signatures, JSON_UNESCAPED_UNICODE);
         try {
             $stmt = $this->db->prepare("UPDATE projects SET signature_settings = ?, updated_at = NOW() WHERE id = ?");
             $stmt->execute([$json, $id]);
@@ -244,6 +352,6 @@ class ProjectController {
             }
             throw $ex;
         }
-        Response::success(['signature' => $data]);
+        Response::success(['signatures' => $signatures]);
     }
 }

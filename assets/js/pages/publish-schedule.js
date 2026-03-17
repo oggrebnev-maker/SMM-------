@@ -15,6 +15,7 @@ const PagePublishSchedule = (function () {
     projects = await loadProjects();
     if (!projects.length) {
       container.innerHTML = `<div class="page-header"><h1 class="page-title">Расписание публикаций</h1></div><div class="empty-state"><div class="empty-icon">📋</div><h3>Нет проектов</h3><p>Создайте проект чтобы настроить расписание</p></div>`;
+      setPageSidebar('Расписание публикаций', 'Укажите время публикации постов проекта по умолчанию. Это упростит создание материалов. Выберите проект и добавьте слоты по дням недели.');
       return;
     }
     // Выбираем проект из стейта или первый
@@ -105,7 +106,18 @@ const PagePublishSchedule = (function () {
         </div>
       </div>`;
 
+    const ps = (typeof State !== 'undefined' && State.get) ? (State.get('publicSettings') || {}) : {};
+    const defaultTitle = 'Расписание публикаций';
+    const defaultHint  = 'Укажите время публикации постов проекта по умолчанию. Это упростит создание материалов. Выберите проект и добавьте слоты по дням недели.';
+    const title = ps.sidebar_publish_schedule_title || defaultTitle || 'Новый заголовок';
+    const hint  = ps.sidebar_publish_schedule_hint  || defaultHint  || 'Lorem...';
+    setPageSidebar(title, hint);
     bindEvents(container);
+  }
+
+  function setPageSidebar(title, hint) {
+    const el = document.getElementById('page-sidebar');
+    if (el) el.innerHTML = `<h3 class="page-sidebar-title page-sidebar-title--large">${title}</h3><p class="page-sidebar-hint">${hint}</p>`;
   }
 
   function renderGrid() {

@@ -30,63 +30,20 @@ const PageSocialAccounts = (() => {
     }, { once: true });
 
     container.innerHTML = `
-      <div style="display:flex;height:100%;min-height:100vh;">
-        <div class="sa-main-col">
-
-          <div class="page-header" style="flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:24px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-              <div class="page-title">Аккаунты</div>
-              <button class="btn btn-primary btn-sm sa-mob-only-btn" id="sa-mob-connect-btn" style="gap:6px;">
-                <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                Подключить
-              </button>
-            </div>
-            <div class="page-subtitle">Подключённые аккаунты социальных сетей, в которые уже можно публиковать новые посты, отвечать на сообщения и комментарии, а также просматривать аналитику.</div>
-          </div>
-
-          <!-- Фильтры по платформам -->
-          <div id="sa-filters" style="display:flex;gap:8px;flex-wrap:nowrap;margin-bottom:20px;align-items:center;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
-            <button class="sa-filter-btn sa-filter-active" data-platform="all"
-              style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--btn-radius);border:1.5px solid var(--accent);background:var(--accent);color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;">
-              Все
-            </button>
-            ${platforms.map(p => `
-              <button class="sa-filter-btn" data-platform="${p.code}"
-                style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--btn-radius);border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;">
-                ${p.icon_url
-                  ? `<img src="${p.icon_url}" style="width:16px;height:16px;object-fit:contain;border-radius:50%;">`
-                  : `<span style="width:16px;height:16px;border-radius:50%;background:${p.color};display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:700;">${p.name.charAt(0)}</span>`
-                }
-                ${p.name}
-              </button>
-            `).join('')}
-          </div>
-
-          <!-- Список аккаунтов -->
-          <div id="sa-list"></div>
-
-        </div>
-
-        <!-- Правый сайдбар — скрыт на мобильном через CSS -->
-        <div class="sa-platforms-sidebar">
-          <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;">Доступные соцсети</div>
-          <div id="sa-platforms-panel" style="display:flex;flex-direction:column;gap:6px;">
-            ${platforms.map(p => `
-              <button class="sa-connect-btn" data-platform="${p.code}"
-                style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--bg);cursor:pointer;transition:all .15s;text-align:left;width:100%;font-family:inherit;">
-                <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-                  ${p.icon_url
-                    ? `<img src="${p.icon_url}" style="width:36px;height:36px;object-fit:contain;">`
-                    : `<div style="width:36px;height:36px;border-radius:50%;background:${p.color};display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:15px;font-weight:700;">${p.name.charAt(0)}</span></div>`
-                  }
-                </div>
-                <span style="font-size:13px;font-weight:600;color:var(--text);flex:1;">${p.name}</span><span style="font-size:20px;font-weight:300;color:var(--muted);line-height:1;">+</span>
-              </button>
-            `).join('')}
-          </div>
-        </div>
-
+      <div id="sa-filters" class="sa-filters">
+        <button type="button" class="btn btn-ghost btn-sm sa-filter-btn sa-filter-active" data-platform="all">Все</button>
+        ${platforms.map(p => `
+          <button type="button" class="btn btn-ghost btn-sm sa-filter-btn" data-platform="${p.code}">
+            ${p.icon_url
+              ? `<img src="${p.icon_url}" alt="" class="sa-filter-icon">`
+              : `<span class="sa-filter-icon sa-filter-icon-fall" style="background:${p.color}">${p.name.charAt(0)}</span>`
+            }
+            <span class="sa-filter-label">${p.name}</span>
+          </button>
+        `).join('')}
       </div>
+
+      <div id="sa-list"></div>
 
       <!-- Модалка подключения аккаунта -->
       <div id="sa-modal" class="modal hidden">
@@ -134,6 +91,35 @@ const PageSocialAccounts = (() => {
       </div>
     `;
 
+    const sidebarEl = document.getElementById('page-sidebar');
+    if (sidebarEl) {
+      const ps = (typeof State !== 'undefined' && State.get) ? (State.get('publicSettings') || {}) : {};
+      const title = ps.sidebar_social_accounts_title || 'Аккаунты' || 'Новый заголовок';
+      const hint  = ps.sidebar_social_accounts_hint  || 'Подключённые аккаунты социальных сетей, в которые можно публиковать посты, отвечать на сообщения и комментарии, а также просматривать аналитику. Выберите платформу ниже, чтобы подключить аккаунт.' || 'Lorem...';
+      sidebarEl.innerHTML = `
+        <h3 class="page-sidebar-title page-sidebar-title--large">${title}</h3>
+        <p class="page-sidebar-hint">${hint}</p>
+        <div class="page-sidebar-section" style="margin-top:20px;">
+          <div style="font-size:var(--text-xs);font-weight:var(--font-bold);text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:10px;">Доступные соцсети</div>
+          <div id="sa-platforms-panel" class="sa-platforms-panel" style="display:flex;flex-direction:column;gap:8px;">
+            ${platforms.map(p => `
+              <button type="button" class="sa-connect-btn" data-platform="${p.code}"
+                style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--bg);cursor:pointer;transition:all .15s;text-align:left;width:100%;font-family:inherit;color:inherit;">
+                <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  ${p.icon_url
+                    ? `<img src="${p.icon_url}" style="width:36px;height:36px;object-fit:contain;" alt="">`
+                    : `<div style="width:36px;height:36px;border-radius:50%;background:${p.color};display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:15px;font-weight:700;">${p.name.charAt(0)}</span></div>`
+                  }
+                </div>
+                <span style="font-size:13px;font-weight:600;color:var(--text);flex:1;">${p.name}</span>
+                <span style="font-size:20px;font-weight:300;color:var(--muted);line-height:1;">+</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
     renderList('all');
     bindEvents();
   }
@@ -168,9 +154,6 @@ const PageSocialAccounts = (() => {
     });
     el.querySelectorAll('.sa-delete-btn').forEach(btn => {
       btn.addEventListener('click', () => deleteAccount(btn.dataset.id));
-    });
-    el.querySelectorAll('.sa-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', () => toggleActive(btn.dataset.id, btn.dataset.active));
     });
   }
 
@@ -225,17 +208,40 @@ const PageSocialAccounts = (() => {
           </div>
         </div>
 
-        <!-- Действия -->
-        <!-- Действия -->
+        <!-- Действия: как на карточке проекта — шестерёнка (настройки) и корзина (удалить) -->
         <div class="sa-card-actions" style="display:flex;gap:4px;flex-shrink:0;">
-          <button class="btn-instr sa-toggle-btn" data-id="${a.id}" data-active="${a.is_active}" title="${a.is_active ? 'Отключить' : 'Включить'}" type="button" style="color:${a.is_active ? '#4ade80' : 'var(--muted)'};">${a.is_active ? '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="10" r="3" fill="currentColor"/></svg>' : '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="10" r="3" fill="currentColor"/></svg>'}</button>
-          <button class="btn-instr sa-edit-btn" data-id="${a.id}" title="Редактировать" type="button"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5a2.121 2.121 0 013 3L7 16H4v-3L13.5 3.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
-          <button class="btn-instr sa-delete-btn" data-id="${a.id}" title="Удалить" type="button"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button class="btn-icon sa-edit-btn" data-id="${a.id}" title="Настройки аккаунта" type="button" aria-label="Настройки аккаунта">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+          </button>
+          <button class="btn-icon sa-delete-btn" data-id="${a.id}" title="Удалить аккаунт" type="button" aria-label="Удалить аккаунт">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 11v6"/>
+              <path d="M14 11v6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+              <path d="M3 6h18"/>
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+          </button>
         </div>
         <div class="sa-card-actions-bottom" style="width:100%;display:flex;gap:4px;padding-top:8px;border-top:1px solid var(--border);">
-          <button class="btn-instr sa-toggle-btn" data-id="${a.id}" data-active="${a.is_active}" title="${a.is_active ? 'Отключить' : 'Включить'}" type="button" style="color:${a.is_active ? '#4ade80' : 'var(--muted)'};">${a.is_active ? '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="10" r="3" fill="currentColor"/></svg>' : '<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="10" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="10" r="3" fill="currentColor"/></svg>'}</button>
-          <button class="btn-instr sa-edit-btn" data-id="${a.id}" title="Редактировать" type="button"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5a2.121 2.121 0 013 3L7 16H4v-3L13.5 3.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
-          <button class="btn-instr sa-delete-btn" data-id="${a.id}" title="Удалить" type="button"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M7 6v9a1 1 0 001 1h4a1 1 0 001-1V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button class="btn-icon sa-edit-btn" data-id="${a.id}" title="Настройки аккаунта" type="button" aria-label="Настройки аккаунта">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+          </button>
+          <button class="btn-icon sa-delete-btn" data-id="${a.id}" title="Удалить аккаунт" type="button" aria-label="Удалить аккаунт">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 11v6"/>
+              <path d="M14 11v6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+              <path d="M3 6h18"/>
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+          </button>
         </div>
       </div>`;
   }
@@ -477,16 +483,8 @@ const PageSocialAccounts = (() => {
     document.getElementById('sa-filters').addEventListener('click', (e) => {
       const btn = e.target.closest('.sa-filter-btn');
       if (!btn) return;
-      document.querySelectorAll('.sa-filter-btn').forEach(b => {
-        b.classList.remove('sa-filter-active');
-        b.style.background    = 'var(--surface)';
-        b.style.borderColor   = 'var(--border)';
-        b.style.color         = 'var(--text2)';
-      });
+      document.querySelectorAll('.sa-filter-btn').forEach(b => b.classList.remove('sa-filter-active'));
       btn.classList.add('sa-filter-active');
-      btn.style.background  = 'var(--accent)';
-      btn.style.borderColor = 'var(--accent)';
-      btn.style.color       = '#fff';
       renderList(btn.dataset.platform);
     });
 
