@@ -44,11 +44,12 @@
 
 /* ================================================================
    Breakpoints (адаптивная сетка)
-   — Широкие экраны:  min-width: 1400px
-   — Ноутбуки:        max-width: 1399px, min-width: 1024px  (1024–1399)
-   — Планшеты:        max-width: 1023px, min-width: 768px   (768–1023)
-   — Телефоны:        max-width: 767px                      (≤767)
-   — Узкий телефон:   max-width: 390px                      (≤390, опционально)
+   — Очень широкие экраны: min-width: 1600px
+   — Широкие экраны:       min-width: 1400px
+   — Ноутбуки:             max-width: 1399px, min-width: 1024px  (1024–1399)
+   — Планшеты:             max-width: 1023px, min-width: 768px   (768–1023)
+   — Телефоны:             max-width: 767px                      (≤767)
+   — Узкий телефон:        max-width: 390px                      (≤390, опционально)
    ================================================================ */
 
 html, body {
@@ -4511,7 +4512,6 @@ input::placeholder, textarea::placeholder {
   #page-container:not(.has-right-sidebar) { padding-left: 100px !important; padding-right: 50px !important; }
   #page-container.has-right-sidebar .page-inner { padding: 48px 50px 48px 100px; }
   .posts-topbar-inner { padding: 16px 50px 12px 100px; }
-  .posts-content { padding: 24px 50px 48px 100px; }
 }
 
 /* ── Publish Schedule ───────────────────────────────────────────── */
@@ -4911,6 +4911,8 @@ input::placeholder, textarea::placeholder {
   align-items: center;
   gap: 4px;
   height: 36px;
+  width: 100%;
+  justify-content: space-between;
 }
 .posts-topbar-arrow {
   display: inline-flex;
@@ -4921,7 +4923,7 @@ input::placeholder, textarea::placeholder {
   flex-shrink: 0;
   border: none;
   border-radius: var(--btn-radius);
-  background: var(--bg);
+  background: #fff;
   color: var(--text2);
   cursor: pointer;
   transition: background .15s, color .15s;
@@ -4947,24 +4949,58 @@ input::placeholder, textarea::placeholder {
   min-width: 72px;
 }
 .posts-content {
-  padding: 24px 24px 48px 24px;
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.posts-main-filters {
+  margin-bottom: 20px;
+}
+.posts-sidebar-filters {
+  margin-top: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.posts-sidebar-menu {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.posts-sidebar-menu-btn {
+  width: 100%;
+  justify-content: flex-start;
 }
 
 /* Сетка: неделя (7 колонок) / месяц (7×N) */
 .posts-grid {
   width: 100%;
-  overflow: auto;
+  overflow: visible;
 }
 .posts-grid-inner {
   display: grid;
   gap: 0;
-  min-width: min(100%, 600px);
+  min-width: 100%;
 }
 .posts-grid--week .posts-grid-inner {
   grid-template-columns: repeat(7, 1fr);
 }
 .posts-grid--month .posts-grid-inner {
   grid-template-columns: repeat(7, 1fr);
+}
+
+/* На узких экранах уменьшаем количество дней в строке, чтобы не было горизонтального скролла */
+@media (max-width: 970px) {
+  .posts-grid--week .posts-grid-inner,
+  .posts-grid--month .posts-grid-inner {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 .posts-grid-cell {
   display: flex;
@@ -5103,9 +5139,6 @@ input::placeholder, textarea::placeholder {
   .posts-topbar-view-value { font-size: var(--text-sm2); }
   .posts-topbar-arrow { width: 32px; height: 32px; }
   .posts-topbar-arrow svg { width: 16px; height: 16px; }
-  .posts-content {
-    padding: 20px 24px 40px;
-  }
 }
 
 /* Плотная раскладка для 768–970px: меньше промежутки и шрифт в полях даты/режима */
@@ -5134,7 +5167,7 @@ input::placeholder, textarea::placeholder {
     scrollbar-width: thin;
   }
   .posts-topbar-block { flex-shrink: 0; }
-  .posts-content { padding: 16px; }
+  .posts-content { padding: 0; }
 }
 
 

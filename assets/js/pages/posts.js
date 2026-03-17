@@ -29,8 +29,8 @@ const PagePosts = (() => {
   function formatWeekRange(monday) {
     const sun = new Date(monday);
     sun.setDate(sun.getDate() + 6);
-    const month = String(monday.getMonth() + 1).padStart(2, '0');
-    return `${monday.getDate()}–${sun.getDate()}.${month}`;
+    const monthName = MONTHS[monday.getMonth()]; // «января», «февраля» и т.д.
+    return `${monday.getDate()}–${sun.getDate()} ${monthName}`;
   }
 
   function formatMonth(d) {
@@ -164,36 +164,40 @@ const PagePosts = (() => {
           </div>
         </div>
       </div>
-      <div class="posts-topbar-block">
-        <div class="posts-topbar-heading">${getDateBlockTitle()}</div>
-        <div class="posts-topbar-date">
-          <button type="button" class="posts-topbar-arrow" id="posts-date-prev" title="Назад" aria-label="Назад">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <span class="posts-topbar-date-value" id="posts-date-label">${getDateLabel()}</span>
-          <button type="button" class="posts-topbar-arrow" id="posts-date-next" title="Вперёд" aria-label="Вперёд">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-      </div>
-      <div class="posts-topbar-block">
-        <div class="posts-topbar-heading">Режим просмотра</div>
-        <div class="posts-topbar-view">
-          <button type="button" class="posts-topbar-arrow" id="posts-view-prev" title="Предыдущий режим" aria-label="Предыдущий режим">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <span class="posts-topbar-view-value" id="posts-view-label">${getViewLabel()}</span>
-          <button type="button" class="posts-topbar-arrow" id="posts-view-next" title="Следующий режим" aria-label="Следующий режим">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-      </div>
     `;
     if (topbarLeft) topbarLeft.innerHTML = topbarBlocksHtml;
 
     if (container) container.innerHTML = `
       <div class="posts-page">
         <div class="posts-content">
+          <div class="posts-main-filters">
+            <div class="posts-sidebar-filters">
+              <div class="posts-topbar-block">
+                <div class="posts-topbar-heading">${getDateBlockTitle()}</div>
+                <div class="posts-topbar-date">
+                  <button type="button" class="posts-topbar-arrow" id="posts-date-prev" title="Назад" aria-label="Назад">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <span class="posts-topbar-date-value" id="posts-date-label">${getDateLabel()}</span>
+                  <button type="button" class="posts-topbar-arrow" id="posts-date-next" title="Вперёд" aria-label="Вперёд">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="posts-topbar-block">
+                <div class="posts-topbar-heading">Режим просмотра</div>
+                <div class="posts-topbar-view">
+                  <button type="button" class="posts-topbar-arrow" id="posts-view-prev" title="Предыдущий режим" aria-label="Предыдущий режим">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <span class="posts-topbar-view-value" id="posts-view-label">${getViewLabel()}</span>
+                  <button type="button" class="posts-topbar-arrow" id="posts-view-next" title="Следующий режим" aria-label="Следующий режим">
+                    <svg viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="posts-grid posts-grid--${viewMode}">
             <div class="posts-grid-inner">
               ${(viewMode === VIEW_WEEK ? getDaysForWeek() : getDaysForMonth()).map(cell => {
@@ -205,11 +209,12 @@ const PagePosts = (() => {
                 return `
                 <div class="posts-grid-cell ${cell.date ? '' : 'posts-grid-cell--empty'}">
                   <div class="posts-grid-cell-head">
-                    ${cell.dayName ? `<span class="posts-grid-cell-day">${cell.dayName}</span>` : ''}
+                    ${cell.dayName || cell.dayNum != null
+                      ? `<span class="posts-grid-cell-day">${cell.dayName || ''}${cell.dayNum != null ? (cell.dayName ? ' ' : '') + cell.dayNum : ''}</span>`
+                      : ''}
                     <button type="button" class="posts-grid-cell-add" title="${canAdd ? 'Добавить пост' : (isPast ? 'Прошлая дата' : '')}" aria-label="${canAdd ? 'Добавить пост' : (isPast ? 'Прошлая дата' : '')}" ${canAdd ? `data-date="${dateStr}"` : 'disabled'}>${canAdd ? '+' : '−'}</button>
                   </div>
                   <div class="posts-grid-cell-body">
-                    ${cell.dayNum != null ? `<span class="posts-grid-cell-num">${cell.dayNum}</span>` : ''}
                   </div>
                 </div>
               `;
@@ -366,6 +371,32 @@ const PagePosts = (() => {
         </div>
       </div>
     `;
+    // Правый сайдбар для раздела «Контент»
+    const sidebarEl = document.getElementById('page-sidebar');
+    if (sidebarEl) {
+      const ps = (typeof State !== 'undefined' && State.get) ? (State.get('publicSettings') || {}) : {};
+      const title = ps.sidebar_posts_title || 'Контент';
+      const hint  = ps.sidebar_posts_hint  || 'Здесь можно планировать и создавать контент по проектам.';
+      sidebarEl.innerHTML = `
+        <h3 class="page-sidebar-title page-sidebar-title--large">${title}</h3>
+        <p class="page-sidebar-hint">${hint}</p>
+
+        <div class="posts-sidebar-menu">
+          <button type="button" class="project-settings-nav-btn posts-sidebar-menu-btn" onclick="App.navigate('/content')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 9h8M8 13h5"/></svg>
+            <span>Весь контент</span>
+          </button>
+          <button type="button" class="project-settings-nav-btn posts-sidebar-menu-btn" onclick="App.navigate('/drafts')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+            <span>Черновики</span>
+          </button>
+          <button type="button" class="project-settings-nav-btn posts-sidebar-menu-btn" onclick="App.navigate('/templates/images')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+            <span>Шаблоны</span>
+          </button>
+        </div>
+      `;
+    }
 
     document.getElementById('posts-date-prev').addEventListener('click', prevUnit);
     document.getElementById('posts-date-next').addEventListener('click', nextUnit);

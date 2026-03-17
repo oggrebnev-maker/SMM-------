@@ -7,7 +7,7 @@ const App = (() => {
   const STUB_TITLES = {
     '/projects/create': 'Создать проект', '/projects/settings': 'Настройки проекта', '/projects/access': 'Доступы',
     '/team': 'Команда', '/team/roles': 'Роли', '/team/invitations': 'Приглашения', '/team/access': 'Права доступа',
-    '/content-plan': 'Контент-план', '/posts': 'Все посты', '/drafts': 'Черновики',
+    '/content-plan': 'Контент-план', '/content': 'Все посты', '/drafts': 'Черновики',
     '/content/variants': 'Варианты постов', '/content/media': 'Медиавложения',
     '/publications/queue': 'Очередь публикаций', '/publications/scheduled': 'Запланированные', '/publications/published': 'Опубликованные',
     '/publications/errors': 'Ошибки публикации', '/publications/log': 'Журнал публикаций',
@@ -29,7 +29,7 @@ const App = (() => {
     '/dashboard':       async () => { await PageDashboard.render(); },
     '/projects':        () => PageProjects.render(),
     '/content-plan':    stubRoute('/content-plan'),
-    '/posts':           async () => { await PagePosts.render(); },
+    '/content':         async () => { await PagePosts.render(); },
     '/drafts':          stubRoute('/drafts'),
     '/calendar':        stubRoute('/calendar'),
     '/audience':        stubRoute('/audience'),
@@ -362,13 +362,13 @@ const App = (() => {
     const handler = ROUTES[path];
     setActiveNav(path);
     const topbarLeft = document.getElementById('app-topbar-left');
-    if (topbarLeft && path !== '/dashboard' && path !== '/posts') topbarLeft.innerHTML = '';
+    if (topbarLeft && path !== '/dashboard' && path !== '/content') topbarLeft.innerHTML = '';
     if (handler) {
       const container = document.getElementById('page-container');
       const sidebarEl = document.getElementById('page-sidebar');
       if (sidebarEl) sidebarEl.innerHTML = '<p class="page-sidebar-hint">Здесь можно разместить подсказки.</p>';
-      container.classList.toggle('posts-layout', path === '/posts' || path === '/dashboard');
-      const pagesWithSidebar = ['/dashboard', '/projects', '/social-accounts', '/publish-schedule', '/profile', '/system-settings'];
+      container.classList.toggle('posts-layout', path === '/content' || path === '/dashboard');
+      const pagesWithSidebar = ['/dashboard', '/projects', '/social-accounts', '/publish-schedule', '/profile', '/system-settings', '/content'];
       container.classList.toggle('has-right-sidebar', pagesWithSidebar.includes(path));
       const result = handler(container);
       if (result && typeof result.then === 'function') await result;

@@ -68,7 +68,7 @@ const PageDashboard = (() => {
       <div class="dashboard-page">
         <div class="dashboard-content">
           <div class="dashboard-cards">
-            <div class="dash-card" onclick="App.navigate('/posts')">
+            <div class="dash-card" onclick="App.navigate('/content')">
               <div class="dash-card-icon" style="background:rgba(99,102,241,0.15);color:#6366f1">
                 <svg viewBox="0 0 20 20" fill="none" width="22" height="22">
                   <path d="M4 4h12M4 8h12M4 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
