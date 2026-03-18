@@ -738,6 +738,12 @@ input::placeholder, textarea::placeholder {
   border-top: 1px solid rgba(255,255,255,0.1);
 }
 
+#sidebar-version {
+  width: 100%;
+  text-align: center;
+  color: var(--red) !important;
+}
+
 .user-avatar {
   width: 36px; height: 36px;
   border-radius: 50%;
@@ -1002,6 +1008,7 @@ input::placeholder, textarea::placeholder {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  flex-shrink: 0;
 }
 .topbar-profile-name {
   font-size: var(--text-md);
@@ -1011,12 +1018,17 @@ input::placeholder, textarea::placeholder {
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2;
+  max-width: 220px;
 }
 .topbar-profile-role {
   font-size: var(--text-sm);
   color: var(--muted);
   font-weight: var(--font-medium);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
 }
 .topbar-profile-chevron {
   width: 18px;
@@ -4943,6 +4955,11 @@ input::placeholder, textarea::placeholder {
   color: var(--text);
   text-align: center;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  padding: 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 /* Значение режима просмотра чуть компактнее по ширине */
 .posts-topbar-view-value {
@@ -5171,8 +5188,4 @@ input::placeholder, textarea::placeholder {
 }
 
 
-/* Топбар: на средних экранах (768–1199px) показываем только аватар и стрелку */
-@media (min-width: 768px) and (max-width: 1199px) {
-  .topbar-profile-info { display: none; }
-  .topbar-profile-btn { gap: 8px; padding-right: 10px; }
-}
+/* Топбар: профиль всегда полноценный (до мобильного брейкпоинта) */
